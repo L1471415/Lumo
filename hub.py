@@ -70,7 +70,7 @@ class Server:
     def get_image(self):
         image_file = request.args.get("image")
 
-        return send_file(f"./static/images{image_file}", mimetype='image/png')
+        return send_file(f"static/images{image_file}", mimetype='image/png')
 
     def get_all_devices(self, broadcast_ip="255.255.255.255", port=31415, timeout=2):
         buffer_size = 1024
