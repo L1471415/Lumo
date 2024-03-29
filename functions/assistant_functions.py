@@ -181,7 +181,7 @@ def generate_image(prompt):
 
         image_data = b64decode(image.data[0].b64_json)
         image_file = f"{prompt[:32].replace(' ', '_')}{image.created}.png"
-        with open(image_file, mode="wb") as png:
+        with open(f"static/images/{image_file}", mode="wb") as png:
             png.write(image_data)
 
         return [f"Generated image with prompt {prompt}", image_file]
