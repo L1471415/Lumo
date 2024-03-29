@@ -61,14 +61,11 @@ class TwilioController:
 
         for line in response_body:
             if line["role"] == "image":
-                #TODO: IMAGES CURRENTLY SLIGHTLY BROKEN, NEED TO FINISH FIXING
-                print(f"/image?image={line['content']}")
-
-                # self.client.messages.create(
-                #     from_=phone_number,
-                #     media_url=line["content"][1],
-                #     to=contact_number
-                # )
+                self.client.messages.create(
+                    from_=phone_number,
+                    media_url=f"{self.ngrok_url}/image?image{line['content'][1]}",
+                    to=contact_number
+                )
             else:
                 response_message += line["content"]
                 response_message += "\n"
@@ -78,6 +75,7 @@ class TwilioController:
         return str(response)
         
     def update_url(self, url):
+        self.ngrok_url = url
         self.client.incoming_phone_numbers.list(phone_number=phone_number)[0].update(sms_url=url + '/sms')
 
 if __name__ == "__main__":
