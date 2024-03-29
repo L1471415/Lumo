@@ -1,11 +1,10 @@
 import socket
-from flask import Flask, request, jsonify
+from flask import Flask, request, send_file
 import requests
 import threading, signal
 import time
 import json
 from pyngrok import ngrok
-
 
 from new_server_architecture.brain import Brain
 from new_server_architecture.mpd_handler import MPDHandler
@@ -41,6 +40,7 @@ class Server:
         self.app.route("/make_request", methods=['POST'])(self.process_request)
         self.app.route("/control_music_playback", methods=['POST'])(self.control_mpd_playback)
         self.app.route("/sms", methods=['POST'])(self.handle_sms)
+        self.app.route("/image", methods=['GET'])(self.get_image)
 
         threading.Thread(target=self.listen_for_devices, name="lumo_listener").start()
         threading.Thread(target=self.heartbeat, name="heartbeat_thread").start()
@@ -66,6 +66,11 @@ class Server:
         if resp:
             return resp
         return ""
+
+    def get_image(self):
+        image_file = request.args.get("image")
+
+        return send_file(f"./static/images{image_file}", mimetype='image/png')
 
     def get_all_devices(self, broadcast_ip="255.255.255.255", port=31415, timeout=2):
         buffer_size = 1024

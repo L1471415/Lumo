@@ -179,8 +179,8 @@ def generate_image(prompt):
             style="vivid"
         )
 
-        image_data = b64decode(image["data"][0]["b64_json"])
-        image_file = f"static/images/{prompt[:32].replace(' ', '_')}{image['created']}.png"
+        image_data = b64decode(image.data[0].b64_json)
+        image_file = f"{prompt[:32].replace(' ', '_')}{image.created}.png"
         with open(image_file, mode="wb") as png:
             png.write(image_data)
 

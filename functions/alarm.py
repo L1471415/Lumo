@@ -46,9 +46,9 @@ def check_alarms():
                 if (cur_moment.weekday() in alarms_list[a][2]):
                     print("ALARM!")
                     play_sound(arm)
-                break 
+                break
             
-            print(f"ALARM!")
+            print("ALARM!")
             play_sound(arm)
             alarms_list.remove(alarms_list[a]) # remove alarm from list if it's a one-time alarm
             with open(alarms_file, 'w') as fp:

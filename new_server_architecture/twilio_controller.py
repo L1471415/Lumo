@@ -2,6 +2,7 @@ import twilio.rest as twilio
 from twilio.twiml.messaging_response import MessagingResponse
 
 from config.config_variables import api_credentials, name, contacts, phone_number
+from new_server_architecture.brain import Brain
 
 class Contacts:
     def __init__(self, contact_list=[]):
@@ -28,7 +29,7 @@ class Contacts:
         return key in self.contacts_by_number.keys() or key.lower() in self.contacts_by_name.keys()
 
 class TwilioController:
-    def __init__(self, brain):
+    def __init__(self, brain:Brain):
         self.client = twilio.Client(api_credentials["twilio"]["sid"], api_credentials["twilio"]["auth_token"])
 
         self.contact_list = Contacts(contact_list=contacts)
@@ -78,9 +79,6 @@ class TwilioController:
         
     def update_url(self, url):
         self.client.incoming_phone_numbers.list(phone_number=phone_number)[0].update(sms_url=url + '/sms')
-
-
-
 
 if __name__ == "__main__":
     controller = TwilioController()
