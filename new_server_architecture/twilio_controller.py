@@ -63,7 +63,7 @@ class TwilioController:
             if line["role"] == "image":
                 self.client.messages.create(
                     from_=phone_number,
-                    media_url=f"{self.ngrok_url}/image?image{line['content'][1]}",
+                    media_url=f"{self.ngrok_url}/image?image={line['content'][1]}",
                     to=contact_number
                 )
             else:
