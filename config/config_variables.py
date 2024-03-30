@@ -1,3 +1,5 @@
+from config.users import User, Users
+
 # What you want the AI to call you. In future this might be replaced with a classifier to detect specific voices
 name = ""
 
