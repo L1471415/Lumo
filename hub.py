@@ -60,7 +60,7 @@ class Server:
 
         if mode == "async":
             for line in self.brain.make_request(request.form.get("message"), request.form.get("room"), request.form.get("user")):
-                requests.post(f"{remote_addr}:8001/send_response", data=line)
+                requests.post(f"http://{remote_addr}:8001/send_response", data=line)
 
             return "Success"
         else:
