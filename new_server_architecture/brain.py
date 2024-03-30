@@ -46,7 +46,7 @@ class Brain:
         if not user is None:
             user = users.get_user_by_id(user)
             user_id = user.user_id
-            user_name = user.user_name.title()
+            user_name = user.name.title()
 
         if not user_id in self.saved_chats.keys():
             self.saved_chats[user_id] = self.inital_chats
@@ -65,7 +65,7 @@ class Brain:
         if not user is None and user in users:
             user = users.get_user_by_id(user)
             user_id = user.user_id
-            user_name = user.user_name.title()
+            user_name = user.name.title()
 
         if not user_id in self.saved_chats.keys():
             self.saved_chats[user_id] = self.inital_chats
