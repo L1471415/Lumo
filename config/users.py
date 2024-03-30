@@ -4,7 +4,7 @@ class User:
     def __init__(self, name, permission_level=1):
         self.name = name
 
-        self.user_id = uuid.uuid4()
+        self.user_id = str(uuid.uuid4())
 
     def add_phone_number(self, phone_number):
         self.phone_number = phone_number
@@ -22,12 +22,12 @@ class Users:
         return self.users[id]
 
     def get_id_from_number(self, number:str):
-        for user in self.users:
+        for (user_id, user) in self.users:
             if user.number == number:
-                return user.user_id
+                return user_id
         
     def contains_number(self, number:str):
-        for user in self.users:
+        for (user_id, user) in self.users:
             if user.number == number:
                 return True
 
