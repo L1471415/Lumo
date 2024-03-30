@@ -47,7 +47,7 @@ class Assistant:
         elif self.mode in ["read", "text"]:
             while True:
                 text = input(f"{name}: ")
-                self.makeRequest(text, name)       
+                self.makeRequest(text, name)      
 
     def makeRequest(self, text, user_id):
         response = requests.post(f"http://{self.server_ip}/make_request", data={

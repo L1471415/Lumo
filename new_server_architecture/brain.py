@@ -66,6 +66,9 @@ class Brain:
             user = users.get_user_by_id(user)
             user_id = user.user_id
             user_name = user.name.title()
+        elif not user is None:
+            user_name = user
+            user = None
 
         if not user_id in self.saved_chats.keys():
             self.saved_chats[user_id] = self.inital_chats
@@ -166,12 +169,18 @@ class Brain:
                     yield result
                     self.saved_chats[user_id].append(result)
             
-            elif command[1] == "smart_device_toggle" and user is None or user.permission_level >= 1:
+            elif command[1] == "smart_device_toggle":
+                if not user is None and user.permission_level < 1:
+                    continue
+
                 if len(command) == 4:
                     self.smart_hub.set_plug(name=command[3], on=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} switched {command[2]}"})
 
-            elif command[1] == "room_light_toggle" and user is None or user.permission_level >= 1:
+            elif command[1] == "room_light_toggle":
+                if not user is None and user.permission_level < 1:
+                    continue
+                
                 if len(command) == 3:
                     self.smart_hub.set_room(name=room_name, on=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} switched {command[2]}"})
@@ -180,7 +189,10 @@ class Brain:
                     self.smart_hub.set_room(name=command[3], on=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} switched {command[2]}"})
 
-            elif command[1] == "room_light_brightness" and user is None or user.permission_level >= 1:
+            elif command[1] == "room_light_brightness":
+                if not user is None and user.permission_level < 1:
+                    continue
+                
                 if len(command) == 3:
                     self.smart_hub.set_room(name=room_name, brightness=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} set to brightness {command[2]}"})
@@ -189,7 +201,10 @@ class Brain:
                     self.smart_hub.set_room(name=command[3], brightness=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} set to brightness {command[2]}"})
 
-            elif command[1] == "room_light_brightness_adjust" and user is None or user.permission_level >= 1:
+            elif command[1] == "room_light_brightness_adjust":
+                if not user is None and user.permission_level < 1:
+                    continue
+                
                 if len(command) == 3:
                     self.smart_hub.adjust_room_brightness(name=room_name, dir=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} adjusted {command[2]} by default (20)"})
@@ -206,7 +221,10 @@ class Brain:
                     self.smart_hub.adjust_room_brightness(name=command[4], dir=command[2], brightness=command[3])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[4]} adjusted {command[2]} by {command[3]}"})
 
-            elif command[1] == "room_light_color" and user is None or user.permission_level >= 1:
+            elif command[1] == "room_light_color":
+                if not user is None and user.permission_level < 1:
+                    continue
+                
                 if len(command) == 3:
                     self.smart_hub.set_room(name=room_name, color=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} set to color {command[2]}"})
@@ -215,12 +233,18 @@ class Brain:
                     self.smart_hub.set_room(name=command[3], color=command[2])
                     self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} set to color {command[2]}"})
 
-            elif command[1] == "control_music" and user is None or user.permission_level >= 1:
+            elif command[1] == "control_music":
+                if not user is None and user.permission_level < 1:
+                    continue
+                
                 self.music_controller.control_music(command[2:])
                 self.saved_chats[user_id].append({"role": "system", "content": f"Setting music to {' '.join(command[2:])}"})
                 yield {"role": "system", "content": f"Setting music to {' '.join(command[2:])}"}
 
-            elif command[1] == "set_alarm_static" and user is None or user.permission_level >= 1: 
+            elif command[1] == "set_alarm_static": 
+                if not user is None and user.permission_level < 1:
+                    continue
+                
                 print(command)
                 if len(command) == 3:
                     # one-time alarm
@@ -232,7 +256,10 @@ class Brain:
                     result = {"role": "system", "content": assistant_functions.set_alarm_static_at(command[2], command[3])}
                     self.saved_chats[user_id].append(result)
 
-            elif command[1] == "remove_alarm_static" and user is None or user.permission_level >= 1:
+            elif command[1] == "remove_alarm_static":
+                if not user is None and user.permission_level < 1:
+                    continue
+                
                 print(command)
                 if len(command) == 3:
                     # one-time alarm

@@ -1,12 +1,15 @@
 import uuid
 
 class User:
-    def __init__(self, name, permission_level=1):
+    def __init__(self, name, permission_level=1, user_id:str=None):
         self.name = name
 
         self.permission_level = permission_level
 
-        self.user_id = str(uuid.uuid4())
+        if user_id is None:
+            self.user_id = str(uuid.uuid4())
+        else:
+            self.user_id = user_id
 
     def add_phone_number(self, phone_number):
         self.phone_number = phone_number
