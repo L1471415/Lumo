@@ -22,12 +22,12 @@ class Users:
         return self.users[id]
 
     def get_id_from_number(self, number:str):
-        for user_id, user in enumerate(self.users):
+        for user_id, user in self.users.items():
             if user.phone_number == number:
                 return user_id
         
     def contains_number(self, number:str):
-        for user_id, user in enumerate(self.users):
+        for user_id, user in self.usersitems():
             if user.phone_number == number:
                 return True
 
