@@ -55,16 +55,27 @@ class Server:
         self.app.run(host="0.0.0.0", port=self.port)
 
     def process_request(self):
-        return {"response": self.brain.make_request(request.form.get("message"), request.form.get("room"), request.form.get("user"))}
+        mode = request.form.get("mode")
+        remote_addr = request.remote_addr
+
+        if return_mode == "async":
+            for line in self.brain.make_request(request.form.get("message"), request.form.get("room"), request.form.get("user")):
+                requests.post(f"{remote_addr}:8001/send_response", data=line)
+
+            return "Success"
+        else:
+            lines = [] 
+            for line in self.brain.make_request(request.form.get("message"), request.form.get("room"), request.form.get("user")):
+                lines.append(line)
+
+            return {"response": lines}
 
     #Endpoint is only needed for eventual webpage/phone apps
     def control_mpd_playback(self):
         pass
 
     def handle_sms(self):
-        resp = self.twilio_handler.respond_to_text(request)
-        if resp:
-            return resp
+        self.twilio_handler.respond_to_text(request)
         return ""
 
     def get_image(self):

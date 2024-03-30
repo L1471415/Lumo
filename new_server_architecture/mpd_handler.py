@@ -5,10 +5,13 @@ import time
 import mpd
 import threading
 
+# Should be a music controller containing an MPD server for ease of access
+# Create an MPD server, but save the music controller to the dict,
+# and have the music controller constructor take in a MPD server to store
 class MPDServer:
     def __init__(self, port):
         self.port = port
-        self.http_port = port + 1  # Assuming HTTP port is MPD port + 1
+        self.http_port = port + 1
         self.config_file = f"/tmp/mpd_{port}.conf"
         self.pid_file = f"/tmp/mpd_{port}.pid"
         self.music_directory = f"{os.path.abspath(os.getcwd())}/music/music_library"
@@ -17,15 +20,14 @@ class MPDServer:
         self.running = True
 
         self.song_pick_thread = threading.Thread(target=self.song_picker, name=f"song_picker_{self.port}")
-        self.song_pick_thread.start()
 
     def song_picker(self):
         while self.running:
-            response = client.idle("playlist")
+            response = self.mpd_client.idle("playlist")
             if "playlist" in response:
-                playlist = client.playlistinfo()
+                playlist = self.mpd_client.playlistinfo()
                 if len(playlist) == 0:
-                    self.pick_new_song()
+                    print("EMPTY")
 
     def create_config(self):
         with open(self.config_file, "w") as f:
@@ -46,6 +48,14 @@ class MPDServer:
 
     def connect(self):
         self.mpd_client.connect("localhost", self.port)
+        self.mpd_client.timeout = 10
+        self.mpd_client.idletimeout = 10
+
+        time.sleep(1)
+
+        # self.song_pick_thread.start()
+
+        self.mpd_client.consume(1)
 
     def close(self):
         self.mpd_client.close()
@@ -62,14 +72,8 @@ class MPDServer:
     def start(self):
         self.mpd_client.play()
 
-    def queue_song(self, song_id):
-        self.mpd_client.add()
-
-    def queue_album(self, album_id):
-        self.mpd_client.add()
-
 def make_new_mpd_server():
-    port = find_available_port()
+    port = find_available_ports()
     server = MPDServer(port)
     server.create_config()
     server.start_server()
@@ -77,10 +81,10 @@ def make_new_mpd_server():
     server.connect()
     return server
 
-def find_available_port(start_port=6600):
+def find_available_ports(start_port=6600):
     port = start_port
     while is_port_in_use(port) or is_port_in_use(port + 1):  # Check both MPD and HTTP ports
-        port += 2  # Increment by 2 to ensure different ports for MPD and HTTP
+        port += 2
     return port
 
 def is_port_in_use(port):

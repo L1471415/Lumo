@@ -47,41 +47,34 @@ class Assistant:
         elif self.mode in ["read", "text"]:
             while True:
                 text = input(f"{name}: ")
-                self.makeRequest(text, name)
-
-    async def read(self, text):
-        print(f"Lumo: {text}")
-        # self.gui.send_response(text)
-
-        if self.mode in ["read", "audio", "calibrate"]:
-            audio = elevenlabs_client.generate(
-                text=text,
-                voice=self.voice,
-                model="eleven_multilingual_v2"
-            )
-            
-            elevenlabs.play(audio)
+                self.makeRequest(text, name)       
 
     def makeRequest(self, text, user_id):
         response = requests.post(f"http://{self.server_ip}/make_request", data={
             "message": text,
             "user": user_id,
-            "room": self.room
+            "room": self.room,
+            "mode": "async"
         })
 
-        lumo_response = response.json()["response"]
+    def read(self, role, content):
+        if role == "image":
+            try:
+                print(f"http://{self.server_ip}/image?image={content}")
+            except Exception as e:
+                print(e)
+        else:
+            print(f"Lumo: {text}")
+            # self.gui.send_response(text)
 
-        for line in lumo_response:
-            if line["role"] == "image":
-                try:
-                    #TODO: IMAGES CURRENTLY SLIGHTLY BROKEN, NEED TO FINISH FIXING
-                    print(f"/image?image={line['content']}")
-                    # img = Image.open(requests.get(f"{self.ext_req_url}/image?image={line['content']}", stream=True).raw)
-                    # img.show()
-                except Exception as e:
-                    print(e)
-            else:
-                asyncio.run(self.read(line["content"]))
+            if self.mode in ["read", "audio", "calibrate"]:
+                audio = elevenlabs_client.generate(
+                    text=text,
+                    voice=self.voice,
+                    model="eleven_multilingual_v2"
+                )
+                
+                asyncio.run(elevenlabs.play(audio))
 
     def audio_callback(self, text:str, start_transcription_time):
         valid_start = "lumo" in text.lower()

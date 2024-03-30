@@ -53,13 +53,7 @@ class TwilioController:
 
         contact_name = self.contact_list.get_name_from_number(contact_number)
 
-        response_body = self.brain.make_request(messageBody=request.values["Body"], room_name="dorm", user=contact_name)
-
-        response = MessagingResponse()
-
-        response_message = ""
-
-        for line in response_body:
+        for line in self.brain.make_request(messageBody=request.values["Body"], room_name="dorm", user=contact_name):
             if line["role"] == "image":
                 self.client.messages.create(
                     from_=phone_number,
@@ -67,12 +61,11 @@ class TwilioController:
                     to=contact_number
                 )
             else:
-                response_message += line["content"]
-                response_message += "\n"
-
-        response.message(response_message)
-
-        return str(response)
+                self.client.messages.create(
+                    from_=phone_number,
+                    body=fline['content'],
+                    to=contact_number
+                )
         
     def update_url(self, url):
         self.ngrok_url = url

@@ -24,7 +24,7 @@ class Server:
 
         self.get_lumo_hub()
 
-        # self.app.route("/control_music", methods=['POST'])(self.control_music)
+        self.app.route("/send_response", methods=['POST'])(self.handle_response)
 
         threading.Thread(target=self.listen_for_devices, name="lumo_listener").start()
         threading.Thread(target=self.heartbeat, name="heartbeat_thread").start()
@@ -32,6 +32,9 @@ class Server:
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
         self.app.run(host="0.0.0.0", port=8001)
+
+    def handle_response(self):
+        self.assistant.read(request.form.get("role"), request.form.get("content"))
 
     def get_lumo_hub(self, broadcast_ip="255.255.255.255", port=31415, timeout=2):
         buffer_size = 1024

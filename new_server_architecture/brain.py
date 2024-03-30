@@ -75,14 +75,12 @@ class Brain:
 
         lines = chat_completion.choices[0].message.content.splitlines()
 
-        parsed_lines = []
-
         for line in lines:
             if not line or line.isspace():
                 continue
             if not ">" in line:
                 result = {"role": "assistant", "content": line}
-                parsed_lines.append( result )
+                yield result
                 self.saved_chats[user].append(result)
                 continue
 
@@ -112,35 +110,35 @@ class Brain:
             if command[1] == "get_time":
                 if len(command) == 2:
                     result = {"role": "system", "content": assistant_functions.get_time()}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
 
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.get_time_at(command[2])}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
             
             elif command[1] == "get_weather":                
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.get_weather(command[2])}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
 
                 if len(command) == 4:
                     result = {"role": "system", "content": assistant_functions.get_weather_at(command[2], command[3])}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
             
             elif command[1] == "send_text":
                 if len(command) == 4:
                     result = {"role": "system", "content": assistant_functions.send_text(self.twilio_client, command[2], command[3])}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
             
             elif command[1] == "search_internet":
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.search_web(command[2])}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
 
             elif command[1] == "generate_image":
@@ -149,17 +147,17 @@ class Brain:
                     img = assistant_functions.generate_image(command[2])
                     self.saved_chats[user].append({"role": "system", "content": img[0]})
                     if len(img) > 1:
-                        parsed_lines.append({"role": "image", "content": img[1]})
+                        yield {"role": "image", "content": img[1]}
             
             elif command[1] == "find_nearby_locations":
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.find_nearby_locations(command[2])}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
 
                 if len(command) == 4:
                     result = {"role": "system", "content": assistant_functions.find_nearby_locations(command[2], command[3])}
-                    parsed_lines.append( result )
+                    yield result
                     self.saved_chats[user].append(result)
             
             elif command[1] == "smart_device_toggle":
@@ -214,7 +212,7 @@ class Brain:
             elif command[1] == "control_music":
                 self.music_controller.control_music(command[2:])
                 self.saved_chats[user].append({"role": "system", "content": f"Setting music to {' '.join(command[2:])}"})
-                parsed_lines.append({"role": "system", "content": f"Setting music to {' '.join(command[2:])}"})
+                yield {"role": "system", "content": f"Setting music to {' '.join(command[2:])}"}
 
             elif command[1] == "set_alarm_static": 
                 print(command)
@@ -242,10 +240,9 @@ class Brain:
 
             else:
                 result = {"role": "assistant", "content": line}
-                parsed_lines.append(result)
+                yield result
                 self.saved_chats[user].append(result)
 
         while len(self.saved_chats[user]) > (self.last_system_chat + 15):
             self.saved_chats[user].pop(self.last_system_chat)
         
-        return parsed_lines
