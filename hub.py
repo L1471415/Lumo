@@ -58,7 +58,7 @@ class Server:
         mode = request.form.get("mode")
         remote_addr = request.remote_addr
 
-        if return_mode == "async":
+        if mode == "async":
             for line in self.brain.make_request(request.form.get("message"), request.form.get("room"), request.form.get("user")):
                 requests.post(f"{remote_addr}:8001/send_response", data=line)
 
