@@ -63,7 +63,7 @@ class TwilioController:
             else:
                 self.client.messages.create(
                     from_=phone_number,
-                    body=fline['content'],
+                    body=line['content'],
                     to=contact_number
                 )
         

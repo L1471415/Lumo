@@ -38,6 +38,10 @@ enabled_features = {
     "self_host_llm": False
 }
 
+users = {
+    "id": "name"
+}
+
 # imperial or metric
 measurement_units = "imperial"
 
