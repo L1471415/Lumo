@@ -27,7 +27,7 @@ class Users:
                 return user_id
         
     def contains_number(self, number:str):
-        for user_id, user in self.usersitems():
+        for user_id, user in self.users.items():
             if user.phone_number == number:
                 return True
 
