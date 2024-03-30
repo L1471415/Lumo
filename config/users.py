@@ -4,6 +4,8 @@ class User:
     def __init__(self, name, permission_level=1):
         self.name = name
 
+        self.permission_level = permission_level
+
         self.user_id = str(uuid.uuid4())
 
     def add_phone_number(self, phone_number):
