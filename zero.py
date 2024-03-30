@@ -36,6 +36,8 @@ class Server:
     def handle_response(self):
         self.assistant.read(request.form.get("role"), request.form.get("content"))
 
+        return "Success"
+
     def get_lumo_hub(self, broadcast_ip="255.255.255.255", port=31415, timeout=2):
         buffer_size = 1024
 

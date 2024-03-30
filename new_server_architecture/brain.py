@@ -9,7 +9,7 @@ import functions.assistant_functions as assistant_functions
 from new_server_architecture.smart_device_hub import SmartDeviceHub
 from music.music import MusicController
 
-from config.config_variables import api_credentials, name
+from config.config_variables import api_credentials, users
 
 openai = OpenAI(api_key=api_credentials["openai"]["key"])
 
@@ -40,38 +40,44 @@ class Brain:
             self.saved_chats[user].pop(self.last_system_chat)
 
     def append_message(self, messageBody, role, user):
-        if user is None:
-            user = "unknown"
-        
-        user = user.title()
+        user_name = "unknown"
+        user_id = "unknown"
 
-        if not user in self.saved_chats.keys():
-            self.saved_chats[user] = self.inital_chats
+        if not user is None:
+            user = users.get_user_by_id(user).user_id
+            user_id = user.user_id
+            user_name = user.user_name.title()
+
+        if not user_id in self.saved_chats.keys():
+            self.saved_chats[user_id] = self.inital_chats
 
         if role == "user":
             formattedDatetime = strftime("%a %Y-%m-%d %H:%M:%S", localtime())
 
-            self.saved_chats[user].append( {"role": "user", "content": f"{user} @ {formattedDatetime} EST: {messageBody}"} )
+            self.saved_chats[user_id].append( {"role": "user", "content": f"{user_name} @ {formattedDatetime} EST: {messageBody}"} )
         else:
-            self.saved_chats[user].append( {"role": role, "content": messageBody} )
+            self.saved_chats[user_id].append( {"role": role, "content": messageBody} )
 
     def make_request(self, messageBody, room_name, user):
-        if user is None:
-            user = "unknown"
-        
-        user = user.title()
+        user_name = "unknown"
+        user_id = "unknown"
 
-        if not user in self.saved_chats.keys():
-            self.saved_chats[user] = self.inital_chats
+        if not user is None:
+            user = users.get_user_by_id(user).user_id
+            user_id = user.user_id
+            user_name = user.user_name.title()
+
+        if not user_id in self.saved_chats.keys():
+            self.saved_chats[user_id] = self.inital_chats
 
         formattedDatetime = strftime("%a %Y-%m-%d %H:%M:%S", localtime())
 
-        self.saved_chats[user].append( {"role": "user", "content": f"{user} @ {formattedDatetime} EST: {messageBody}"} )
+        self.saved_chats[user_id].append( {"role": "user", "content": f"{user_name} @ {formattedDatetime} EST: {messageBody}"} )
 
-        while len(self.saved_chats[user]) > (self.last_system_chat + 15):
-            self.saved_chats[user].pop(self.last_system_chat)
+        while len(self.saved_chats[user_id]) > (self.last_system_chat + 15):
+            self.saved_chats[user_id].pop(self.last_system_chat)
 
-        chat_completion = openai.chat.completions.create(model="ft:gpt-3.5-turbo-0125:lumo:lumo:90IhRgoL", messages=self.saved_chats[user])
+        chat_completion = openai.chat.completions.create(model="ft:gpt-3.5-turbo-0125:lumo:lumo:90IhRgoL", messages=self.saved_chats[user_id])
 
         lines = chat_completion.choices[0].message.content.splitlines()
 
@@ -81,13 +87,13 @@ class Brain:
             if not ">" in line:
                 result = {"role": "assistant", "content": line}
                 yield result
-                self.saved_chats[user].append(result)
+                self.saved_chats[user_id].append(result)
                 continue
 
             if not "> " in line:
                 line.replace(">", "> ")
             
-            self.saved_chats[user].append({"role": "assistant", "content": line})
+            self.saved_chats[user_id].append({"role": "assistant", "content": line})
 
             # Else line is a command
             command = line.split(" ")
@@ -111,41 +117,41 @@ class Brain:
                 if len(command) == 2:
                     result = {"role": "system", "content": assistant_functions.get_time()}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.get_time_at(command[2])}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
             
             elif command[1] == "get_weather":                
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.get_weather(command[2])}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
                 if len(command) == 4:
                     result = {"role": "system", "content": assistant_functions.get_weather_at(command[2], command[3])}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
             
             elif command[1] == "send_text":
                 if len(command) == 4:
                     result = {"role": "system", "content": assistant_functions.send_text(self.twilio_client, command[2], command[3])}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
             
             elif command[1] == "search_internet":
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.search_web(command[2])}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
             elif command[1] == "generate_image":
                 print(command)
                 if len(command) == 3:
                     img = assistant_functions.generate_image(command[2])
-                    self.saved_chats[user].append({"role": "system", "content": img[0]})
+                    self.saved_chats[user_id].append({"role": "system", "content": img[0]})
                     if len(img) > 1:
                         yield {"role": "image", "content": img[1]}
             
@@ -153,65 +159,65 @@ class Brain:
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.find_nearby_locations(command[2])}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
                 if len(command) == 4:
                     result = {"role": "system", "content": assistant_functions.find_nearby_locations(command[2], command[3])}
                     yield result
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
             
             elif command[1] == "smart_device_toggle":
                 if len(command) == 4:
                     self.smart_hub.set_plug(name=command[3], on=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {command[3]} switched {command[2]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} switched {command[2]}"})
 
             elif command[1] == "room_light_toggle":
                 if len(command) == 3:
                     self.smart_hub.set_room(name=room_name, on=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {room_name} switched {command[2]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} switched {command[2]}"})
 
                 if len(command) == 4:
                     self.smart_hub.set_room(name=command[3], on=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {command[3]} switched {command[2]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} switched {command[2]}"})
 
             elif command[1] == "room_light_brightness":
                 if len(command) == 3:
                     self.smart_hub.set_room(name=room_name, brightness=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {room_name} set to brightness {command[2]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} set to brightness {command[2]}"})
 
                 if len(command) == 4:
                     self.smart_hub.set_room(name=command[3], brightness=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {command[3]} set to brightness {command[2]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} set to brightness {command[2]}"})
 
             elif command[1] == "room_light_brightness_adjust":
                 if len(command) == 3:
                     self.smart_hub.adjust_room_brightness(name=room_name, dir=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {room_name} adjusted {command[2]} by default (20)"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} adjusted {command[2]} by default (20)"})
 
                 if len(command) == 4:
                     if int(command[3]):
                         self.smart_hub.adjust_room_brightness(name=room_name, dir=command[2], brightness=command[3])
-                        self.saved_chats[user].append({"role": "system", "content": f"lights in room {room_name} adjusted {command[2]} by {command[3]}"})
+                        self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} adjusted {command[2]} by {command[3]}"})
                     else:
                         self.smart_hub.adjust_room_brightness(name=command[3], dir=command[2])
-                        self.saved_chats[user].append({"role": "system", "content": f"lights in room {command[3]} adjusted {command[2]} by default of 20"})
+                        self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} adjusted {command[2]} by default of 20"})
 
                 if len(command) == 5:
                     self.smart_hub.adjust_room_brightness(name=command[4], dir=command[2], brightness=command[3])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {command[4]} adjusted {command[2]} by {command[3]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[4]} adjusted {command[2]} by {command[3]}"})
 
             elif command[1] == "room_light_color":
                 if len(command) == 3:
                     self.smart_hub.set_room(name=room_name, color=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {room_name} set to color {command[2]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {room_name} set to color {command[2]}"})
 
                 if len(command) == 4:
                     self.smart_hub.set_room(name=command[3], color=command[2])
-                    self.saved_chats[user].append({"role": "system", "content": f"lights in room {command[3]} set to color {command[2]}"})
+                    self.saved_chats[user_id].append({"role": "system", "content": f"lights in room {command[3]} set to color {command[2]}"})
 
             elif command[1] == "control_music":
                 self.music_controller.control_music(command[2:])
-                self.saved_chats[user].append({"role": "system", "content": f"Setting music to {' '.join(command[2:])}"})
+                self.saved_chats[user_id].append({"role": "system", "content": f"Setting music to {' '.join(command[2:])}"})
                 yield {"role": "system", "content": f"Setting music to {' '.join(command[2:])}"}
 
             elif command[1] == "set_alarm_static": 
@@ -219,30 +225,30 @@ class Brain:
                 if len(command) == 3:
                     # one-time alarm
                     result = {"role": "system", "content": assistant_functions.set_alarm_static(command[2])}
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
                 if len(command) == 4:
                     # repeating alarm
                     result = {"role": "system", "content": assistant_functions.set_alarm_static_at(command[2], command[3])}
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
             elif command[1] == "remove_alarm_static":
                 print(command)
                 if len(command) == 3:
                     # one-time alarm
                     result = {"role": "system", "content": assistant_functions.remove_alarm_static(command[2])}
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
                 if len(command) == 4:
                     # repeating alarm
                     result = {"role": "system", "content": assistant_functions.remove_alarm_static_at(command[2], command[3])}
-                    self.saved_chats[user].append(result)
+                    self.saved_chats[user_id].append(result)
 
             else:
                 result = {"role": "assistant", "content": line}
                 yield result
-                self.saved_chats[user].append(result)
+                self.saved_chats[user_id].append(result)
 
-        while len(self.saved_chats[user]) > (self.last_system_chat + 15):
-            self.saved_chats[user].pop(self.last_system_chat)
+        while len(self.saved_chats[user_id]) > (self.last_system_chat + 15):
+            self.saved_chats[user_id].pop(self.last_system_chat)
         

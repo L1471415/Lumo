@@ -64,12 +64,12 @@ class Assistant:
             except Exception as e:
                 print(e)
         else:
-            print(f"Lumo: {text}")
+            print(f"Lumo: {content}")
             # self.gui.send_response(text)
 
             if self.mode in ["read", "audio", "calibrate"]:
                 audio = elevenlabs_client.generate(
-                    text=text,
+                    text=content,
                     voice=self.voice,
                     model="eleven_multilingual_v2"
                 )

@@ -38,9 +38,9 @@ enabled_features = {
     "self_host_llm": False
 }
 
-users = {
-    "id": "name"
-}
+users = Users()
+
+users.add_user(User("USER", 1).add_phone_number("NUMBER"))
 
 # imperial or metric
 measurement_units = "imperial"

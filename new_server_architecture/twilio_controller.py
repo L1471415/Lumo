@@ -1,7 +1,8 @@
 import twilio.rest as twilio
 from twilio.twiml.messaging_response import MessagingResponse
 
-from config.config_variables import api_credentials, name, contacts, phone_number
+from config.users import User
+from config.config_variables import api_credentials, name, contacts, users, phone_number
 from new_server_architecture.brain import Brain
 
 class Contacts:
@@ -11,8 +12,13 @@ class Contacts:
 
         for number in contact_list:
             names = contact_list[number]
+
+            if not users.contains_number(number):
+                users.create_user(User(names[0], 0).add_phone_number(number))
+
             for name in names:
                 name = name.lower()
+
                 if not name in self.contacts_by_name.keys():
                     self.contacts_by_name[name] = number
                 if not number in self.contacts_by_number.keys():
@@ -32,12 +38,11 @@ class TwilioController:
     def __init__(self, brain:Brain):
         self.client = twilio.Client(api_credentials["twilio"]["sid"], api_credentials["twilio"]["auth_token"])
 
-        self.contact_list = Contacts(contact_list=contacts)
-
         self.brain = brain
 
+        self.contact_list = Contacts(contact_list=contacts)
+
     def send_text(self, contact_name, message):
-        print(message)
         self.client.messages.create(
             from_=phone_number,
             body="\n".join(message.splitlines()),
@@ -51,9 +56,9 @@ class TwilioController:
         if not contact_number in self.contact_list:
             return
 
-        contact_name = self.contact_list.get_name_from_number(contact_number)
+        contact_id = users.get_id_from_number(contact_number)
 
-        for line in self.brain.make_request(messageBody=request.values["Body"], room_name="dorm", user=contact_name):
+        for line in self.brain.make_request(messageBody=request.values["Body"], room_name="dorm", user=contact_id):
             if line["role"] == "image":
                 self.client.messages.create(
                     from_=phone_number,
@@ -70,9 +75,3 @@ class TwilioController:
     def update_url(self, url):
         self.ngrok_url = url
         self.client.incoming_phone_numbers.list(phone_number=phone_number)[0].update(sms_url=url + '/sms')
-
-if __name__ == "__main__":
-    controller = TwilioController()
-
-    print(controller.contact_list.contacts_by_name)
-    print(controller.contact_list.contacts_by_number)
