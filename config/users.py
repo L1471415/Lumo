@@ -32,3 +32,6 @@ class Users:
                 return True
 
         return False
+
+    def __contains__(self, id):
+        return id in self.users.keys()

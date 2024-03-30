@@ -62,7 +62,7 @@ class Brain:
         user_name = "unknown"
         user_id = "unknown"
 
-        if not user is None:
+        if not user is None and user in users:
             user = users.get_user_by_id(user).user_id
             user_id = user.user_id
             user_name = user.user_name.title()
