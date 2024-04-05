@@ -43,13 +43,14 @@ class TwilioController:
         self.contact_list = Contacts(contact_list=contacts)
 
     def send_text(self, contact_name, message):
+        contact_num = self.contact_list.get_number_from_name(contact_name)
         self.client.messages.create(
             from_=phone_number,
             body="\n".join(message.splitlines()),
-            to=self.contact_list.get_number_from_name(contact_name)
+            to=contact_num
         )
 
-        self.brain.append_message(message, "assistant", contact_name)
+        self.brain.append_message(message, "assistant", users.get_id_from_number(contact_num))
     
     def respond_to_text(self, request):
         contact_number = request.values["From"]

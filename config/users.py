@@ -1,4 +1,5 @@
 import uuid
+from scipy.io import wavfile
 
 class User:
     def __init__(self, name, permission_level=1, user_id:str=None):
@@ -38,5 +39,24 @@ class Users:
 
         return False
 
+    def save_audio_sample(self, audio_sample, sample_rate=16000):
+        self.audio_file = f"./config/voice_samples/{self.user_id}_voice.wav"
+
+        wavfile.write(self.audio_file, sample_rate, audio_sample)
+        
+        return self
+
     def __contains__(self, id):
         return id in self.users.keys()
+
+    def __iter__(self):
+        self.index = 0
+        return self
+
+    def __next__(self):
+        if self.index < len(self.users):
+            user_id = list(self.users.keys())[self.index]
+            self.index += 1
+            return self.users[user_id]
+        else:
+            raise StopIteration

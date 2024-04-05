@@ -127,7 +127,8 @@ class Brain:
                     yield result
                     self.saved_chats[user_id].append(result)
             
-            elif command[1] == "get_weather":                
+            elif command[1] == "get_weather":
+                print("WEATHER")               
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.get_weather(command[2])}
                     yield result
