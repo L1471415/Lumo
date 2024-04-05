@@ -156,7 +156,6 @@ def get_weather_at(location, request):
                 "chance_of_precipitation": response.json()['hourly'][i]["pop"]
             }
         
-        
         chat_completion = openai.chat.completions.create(model="gpt-3.5-turbo", messages=[
             {"role": "system", "content": json.dumps(forecast_info)},
             {"role": "system", "content": f"summarize the above weather information to best answer the following request about the weather: {request} at {location}"}

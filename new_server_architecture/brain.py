@@ -135,7 +135,7 @@ class Brain:
                     self.saved_chats[user_id].append(result)
 
                 if len(command) == 4:
-                    result = {"role": "system", "content": assistant_functions.get_weather_at(command[2], command[3])}
+                    result = {"role": "system", "content": assistant_functions.get_weather_at(command[3], command[2])}
                     yield result
                     self.saved_chats[user_id].append(result)
             
