@@ -27,10 +27,19 @@ class Users:
     def get_user_by_id(self, id:str):
         return self.users[id]
 
+    def get_id_from_name(self, name:str):
+        for user_id, user in self.users.items():
+            if user.name == name:
+                return user_id
+        
+        return None
+
     def get_id_from_number(self, number:str):
         for user_id, user in self.users.items():
             if user.phone_number == number:
                 return user_id
+
+        return None
         
     def contains_number(self, number:str):
         for user_id, user in self.users.items():
