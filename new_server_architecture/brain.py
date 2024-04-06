@@ -15,11 +15,11 @@ openai = OpenAI(api_key=api_credentials["openai"]["key"])
 
 class Brain:
     def __init__(self):
-        self.initial_prompt_dialog = open("./config/assistant_prompt.txt", "r").readlines()
+        self.initial_prompt_dialog = open("./files/gpt_prompts/assistant_prompt.txt", "r").readlines()
 
         self.initial_prompt = f"You are a household assistant AI named Lumo. When you receive a prompt, respond to it in a helpful way. In addition you are able to call simple commands so you have extra functionality. To run one of these commands include \"> command_name_here\" in your response. The current date and time is provided."
 
-        self.available_commands = json.load(open("./config/assistant_functions.json"))
+        self.available_commands = json.load(open("./files/gpt_prompts/assistant_functions.json"))
 
         self.inital_chats = [
             {"role": "system", "content": self.initial_prompt},

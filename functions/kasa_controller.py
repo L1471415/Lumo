@@ -37,7 +37,7 @@ class KasaController:
         self.loop.run_until_complete(self.discover())
 
     async def discover(self):
-        with open("functions/smart_devices.json") as f:
+        with open("./files/stored_data/smart_devices.json") as f:
             json_data = json.load(f)
         
         # Remove duplicate ip addresses
@@ -95,7 +95,7 @@ class KasaController:
         json_data["lights"]["kasa"] = list(json_data["lights"]["kasa"])
         json_data["devices"]["kasa"] = list(json_data["devices"]["kasa"])
 
-        with open("functions/smart_devices.json", 'w') as f:
+        with open("./files/stored_data/smart_devices.json", 'w') as f:
             json.dump(json_data, f)
 
     def set_plug(self, name="", on=""):

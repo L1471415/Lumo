@@ -61,7 +61,7 @@ def get_time_at(location):
         
         return f"In {location} it is currently {cur_time} on {cur_day}."
     except:
-        playsound('./error handling audio/ElevenLabs_getTime.mp3')
+        playsound('./files/error_audio/ElevenLabs_getTime.mp3')
         return f"Could not find the time in {location}"
 
 def send_text(twilio_client, contact_name, message):
@@ -75,7 +75,7 @@ def send_text(twilio_client, contact_name, message):
 
         return f"Just sent the text message to {contact_name}, is there anything else you would like me to do?"
     except Exception as e:
-        playsound('./error handling audio/ElevenLabs_sendText.mp3')
+        playsound('./files/error_audio/ElevenLabs_sendText.mp3')
         return f"Error, could not send message to {contact_name}: {e}"
 
 def get_weather(request):
@@ -118,7 +118,7 @@ def get_weather(request):
         
         return chat_completion.choices[0].message.content
     except Exception as err:
-        playsound('./error handling audio/ElevenLabs_getWeather.mp3')
+        playsound('./files/error_audio/ElevenLabs_getWeather.mp3')
         return f"Error: {err}, could not find weather"
 
 def get_weather_at(location, request):
@@ -163,7 +163,7 @@ def get_weather_at(location, request):
         
         return chat_completion.choices[0].message.content
     except:
-        playsound('./error handling audio/ElevenLabs_getWeatherLocation.mp3')
+        playsound('./files/error_audio/ElevenLabs_getWeatherLocation.mp3')
         return f"Error, could not find weather at {location}"
 
 def generate_image(prompt):
@@ -185,7 +185,7 @@ def generate_image(prompt):
 
         return [f"Generated image with prompt {prompt}", image_file]
     except:
-        playsound('./error handling audio/ElevenLabs_generateImage.mp3')
+        playsound('./files/error_audio/ElevenLabs_generateImage.mp3')
         return [f"Could not generate image with prompt {prompt}"]
 
 def search_web(query):
@@ -203,7 +203,7 @@ def search_web(query):
         
         return chat_completion.choices[0].message.content
     except:
-        playsound('./error handling audio/ElevenLabs_searchWeb.mp3')
+        playsound('./files/error_audio/ElevenLabs_searchWeb.mp3')
         return f"Error, query {query} could not be completed"
 
 
@@ -251,7 +251,7 @@ def find_nearby_locations(location_type, location=None):
 
         return locations
     except:
-        playsound('./error handling audio/ElevenLabs_findNearbyLocation.mp3')
+        playsound('./files/error_audio/ElevenLabs_findNearbyLocation.mp3')
         return "Error, could not find locations"
 
 def set_alarm_static(time):
@@ -272,7 +272,7 @@ def set_alarm_static(time):
         return f"Set an alarm for {hour}:{minute}"
 
     except:
-        playsound('./error handling audio/ElevenLabs_setAlarm.mp3')
+        playsound('./files/error_audio/ElevenLabs_setAlarm.mp3')
         return f"Error, invalid time {time}. "
     
 def set_alarm_static_at(time, repeat_days):
@@ -301,7 +301,7 @@ def set_alarm_static_at(time, repeat_days):
         return f"Set an alarm for {hour}:{minute} on {repeat_days}"
 
     except:
-        playsound('./error handling audio/ElevenLabs_AlarmAt.mp3')
+        playsound('./files/error_audio/ElevenLabs_AlarmAt.mp3')
         return f"Error, invalid time {time} or repeating days '{repeat_days}'. " 
 
 def remove_alarm_static(time):
@@ -320,7 +320,7 @@ def remove_alarm_static(time):
             return f"Error, no alarm for {hour}:{minute} exists"
 
     except:
-        playsound('./error handling audio/ElevenLabs_removeAlarm.mp3')
+        playsound('./files/error_audio/ElevenLabs_removeAlarm.mp3')
         return f"Error, invalid time {time}. "
 
 def remove_alarm_static_at(time, repeat_days):
@@ -347,7 +347,7 @@ def remove_alarm_static_at(time, repeat_days):
             return f"Error, no alarm for {hour}:{minute} on {repeat_days} exists"
 
     except:
-        playsound('./error handling audio/ElevenLabs_AlarmAt.mp3')
+        playsound('./files/error_audio/ElevenLabs_AlarmAt.mp3')
         return f"Error, invalid time {time} or repeating days '{repeat_days}'. " 
 
 def wake_up():

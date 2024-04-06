@@ -9,9 +9,9 @@ from timezonefinder import TimezoneFinder
 timezoneFinder = TimezoneFinder()
 main_timezone = pytz.timezone("America/New_York")
 
-alarms_file = './config/saved_alarms.json' 
+alarms_file = './files/stored_data/saved_alarms.json' 
 alarms_list = []
-arm = ".config/alarm_audio/AlarmRC.mp3"
+arm = ".files/alarm_audio/AlarmRC.mp3"
 
 # load the saved alarms in the alarms file into the alarms list
 with open(alarms_file, 'r') as fp:

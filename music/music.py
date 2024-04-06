@@ -14,7 +14,6 @@ from config.config_variables import api_credentials
 
 openai.api_key = api_credentials["openai"]["key"]
 
-
 #TODO: Add support for MPD, and potentially MPRIS
 class MusicController:
     def __init__(self, shuffle=True, loop=True, album=None, artist=None, playlist=None):
@@ -210,7 +209,7 @@ class MusicController:
 
         return new_song_index
 
-    def pick_new_song(self):    
+    def pick_new_song(self):
         picked_song = 0
         if self.shuffle:
             picked_song = random.randint(0, len(self.available_songs) - 1)

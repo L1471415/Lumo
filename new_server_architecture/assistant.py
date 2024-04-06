@@ -7,8 +7,8 @@ import threading, signal
 import json
 from PIL import Image
 
-import assistant.transcribe as transcribe
 from config.config_variables import api_credentials, name
+from audio.audio_stream import AudioHandler
 
 assistant_voice = {
     "luma": "nmVu5pKR445tWxY6JPEF",
@@ -19,7 +19,6 @@ elevenlabs_client = ElevenLabs(api_key=api_credentials["elevenlabs"]["key"])
 
 class Assistant:
     def __init__(self, mode="audio", voice="lumo", room="none"):
-        self.live_transcribe = transcribe.StreamHandler()
         self.mode = mode
         self.last_valid_request = None
         self.voice = elevenlabs.Voice(
@@ -30,6 +29,8 @@ class Assistant:
 
         self.gui = None
 
+        self.audio_handler = AudioHandler()
+
         threading.Thread(target=self.start).start()
 
         signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -38,13 +39,15 @@ class Assistant:
         self.server_ip = f"{server[0]}:{server[1]}"
 
     def start(self):
-        if self.mode == "calibrate":
-            self.live_transcribe.calibrate(25)
+        if self.mode == "audio":
+            for audio in handler.stream():
+                response = requests.post(f"http://{self.server_ip}/process_audio", data={
+                    "audio": audio.tobytes()
+                })
 
-        if self.mode in ["audio", "calibrate"]:
-            self.live_transcribe.listen(self.audio_callback, "The transcript is a request to an AI assistant named Lumo")
+                self.makeRequest(response["text"], response["user"])
 
-        elif self.mode in ["read", "text"]:
+        if self.mode in ["read", "text"]:
             while True:
                 text = input(f"{name}: ")
                 self.makeRequest(text, name)      
