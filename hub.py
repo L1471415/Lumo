@@ -6,9 +6,14 @@ import time
 import json
 from pyngrok import ngrok
 
+from config.config_variables import users
+
 from new_server_architecture.brain import Brain
 from new_server_architecture.mpd_handler import MPDHandler
 from new_server_architecture.twilio_controller import TwilioController
+from audio.transcribe import transcribe
+
+import audio.speaker_verify as sv
 
 def stable_hash(text:str):
     hash=0
@@ -38,6 +43,7 @@ class Server:
         self.get_all_devices()
 
         self.app.route("/make_request", methods=['POST'])(self.process_request)
+        self.app.route("/process_audio", methods=['POST'])(self.process_audio)
         self.app.route("/control_music_playback", methods=['POST'])(self.control_mpd_playback)
         self.app.route("/sms", methods=['POST'])(self.handle_sms)
         self.app.route("/image", methods=['GET'])(self.get_image)
@@ -69,6 +75,26 @@ class Server:
                 lines.append(line)
 
             return {"response": lines}
+
+    def process_audio(self):
+        received_audio = request.form.get("audio")
+
+        cleaned_audio = sv.clean_audio(received_audio)
+        
+        user_id = "unknown"
+        user_similarity = 0.5
+
+        for user in users:
+            similarity = sv.calculate_similarity(user.audio_file, cleaned_audio)
+
+            if similarity > user_similarity:
+                user_similarity = similarity
+                user_id = user.user_id
+
+        transcription = transcribe(received_audio)
+
+        return {"user": user, "text": transcription}
+        
 
     #Endpoint is only needed for eventual webpage/phone apps
     def control_mpd_playback(self):
