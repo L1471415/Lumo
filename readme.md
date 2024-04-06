@@ -1,7 +1,7 @@
 <h1 align="center"> Lumo </h1>
 
 <p align="center">
-  <img width=240 src="icons/updated_logo.svg" alt="Logo"/>
+  <img width=240 src="files/icons/updated_logo.svg" alt="Logo"/>
 </p>
 
 ## About ##
