@@ -14,7 +14,7 @@ random.seed(123)
 
 model = DeepSpeakerModel()
 
-model.m.load_weights('.files/models/deep_speaker.h5', by_name=True)
+model.m.load_weights('./files/models/deep_speaker.h5', by_name=True)
 
 # Code taken Phillpperemy, developer of Deep-Speaker and slightly modified to work with bytes
 def read_mfcc_bytes(audio_array, sample_rate):

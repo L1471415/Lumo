@@ -7,7 +7,7 @@ class SmartDeviceHub:
     def __init__(self):
         self.kasa_controller = KasaController()
 
-        with open("functions/smart_devices.json") as f:
+        with open("./files/stored_data/smart_devices.json") as f:
             self.devices = json.load(f)
         
     def set_plug(self, name="", on=""):

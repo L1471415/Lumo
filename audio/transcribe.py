@@ -4,7 +4,7 @@ from pydub import AudioSegment
 
 from config.config_variables import api_credentials
 
-client = OpenAI(api_credentials["openai"]["key"])
+client = OpenAI(api_key=api_credentials["openai"]["key"])
 
 def transcribe(audio):
     audio_bytes = audio.astype(np.int16).tobytes()
