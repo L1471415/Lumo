@@ -39,25 +39,50 @@ class TextInputNew(tk.Tk):
     def __init__(self, Window):
         self.window = Window
         self.new_window_frame = tk.Frame(master=self.window, bg="#188FA7")
-        self.new_window_frame.pack(side=tk.RIGHT)
+        self.new_window_frame.pack(side=tk.BOTTOM)
 
         self.enterText = tk.Entry(self.new_window_frame)
         self.submitButton = ttk.Button(self.new_window_frame, text="example", command=self.submission)
+
+        self.enterText.grid(column=1, row = 1)
+        self.submitButton.grid(column=2, row = 1)
+
     def submission(self):
         what = self.enterText.get()
         textStorage.append(what)
 
-class DisplayInputNew(tk.Tk, int):
+    def destroyItself(self):
+        self.new_window_frame.destroy()
+
+class VoiceInput(tk.Tk):
+    def __init__(self, window):
+        print("test")
+
+class DisplayInputNew(tk.Tk):
     def __init__(self, Window, messageNumber):
         self.window = Window
         self.messageNumber = messageNumber
-        self.scrollbar = tk.Scrollbar(master=self.new_window_frame)
+        self.displayedMessages = []
+
+        self.InputWindowFrame = tk.Frame(master=self.window, bg="#2F34A5")
+        self.InputWindowFrame.pack(side=tk.BOTTOM)
+        self.scrollbar = tk.Scrollbar(master=self.InputWindowFrame)
+        self.scrollbar.grid(column=9, row=7)
 
         if (self.messageNumber > len(textStorage) or self.messageNumber < 0):
             self.messageNumber = len(textStorage)
+        
+    def destroyItself(self):
+        self.InputWindowFrame.destroy()
 
-        for i in range(len(textStorage)):
-            tk.Label(self.new_window_frame, text=textStorage[len(textStorage)-i-1], background = "#188FA7").grid(column=1, row=0+i)
+    def updateText(self):
+        for i in self.displayedMessages:
+            i.destroy()
+
+        for i in range(self.messageNumber):
+            newMessage = tk.Label(self.InputWindowFrame, text=textStorage[len(textStorage)-i-1], background = "#188FA7")
+            newMessage.grid(column=1, row=0+i)
+            self.displayedMessages.append(newMessage)
 
 class ShowVideo(tk.Tk):
     def __init__(self, Window):
@@ -73,27 +98,41 @@ class Window:
 
         self.tk.title("Lumo? I hardely Know her!!!!")
         self.window_frame = tk.Frame(master=self.tk, bg="#769FB6")
-        self.window_frame.pack(fill = tk.BOTH, side=tk.LEFT, expand=True)
+        self.window_frame.pack(fill = tk.BOTH, expand=True)
         ttk.Label(self.window_frame, text="Hello Lumo!").grid(column=1, row=0)
-        button = tk.Button(self.window_frame, text="Kill myself nowwwww!!!!.", command=self.destroy).grid(column = 1, row = 99)
+        button = tk.Button(self.window_frame, text="Kill myself nowwwww!!!!.", command=self.destroy).grid(column = 99, row = 99)
 
         #self.text_input = TextInput(self.window_frame)
 
-        button = tk.Button(self.window_frame, text="switch to input mode", command=self.writeToLumo).pack()
+        self.button = tk.Button(self.window_frame, text="switch to input mode", command=self.writeToLumo)
+        self.button.grid(column= 1, row = 2)
 
-        
+        self.destructionButton = tk.Button(self.window_frame, text="update text", command=self.textUpdate)
+        self.destructionButton.grid(column=1, row= 4)
+
+        self.destructionButton = tk.Button(self.window_frame, text="destroy all", command=self.destroyAll)
+        self.destructionButton.grid(column=1, row= 3)
+
 
         self.tk.mainloop()
 
     def displayHomeScreen(self):
         print("test")
+
     def writeToLumo(self):
-        TextInputNew(self.tk)
-        DisplayInputNew(self.tk, 10)
+        self.DisplayInput = DisplayInputNew(self.tk, 99)
+        self.TextInput = TextInputNew(self.tk)
+
+    def textUpdate(self):
+        self.DisplayInput.updateText()
+
     def displayVideo():
         print("test")
-    
 
+    def destroyAll(self):
+        self.TextInput.destroyItself()
+        self.DisplayInput.destroyItself()
+        
     def destroy(self):
         self.tk.destroy()
 
