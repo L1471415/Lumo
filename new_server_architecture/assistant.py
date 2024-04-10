@@ -1,7 +1,7 @@
 import asyncio
 import elevenlabs
 from elevenlabs.client import ElevenLabs
-from datetime import datetime, timedelta
+import time
 import requests
 import threading, signal
 import json
@@ -40,12 +40,14 @@ class Assistant:
 
     def start(self):
         if self.mode == "audio":
-            for audio in handler.stream():
+            for audio in self.audio_handler.transcription_stream():
                 response = requests.post(f"http://{self.server_ip}/process_audio", data={
-                    "audio": audio.tobytes()
+                    "audio": audio
                 })
+                
+                # self.gui.send_prompt(response["text"])
 
-                self.makeRequest(response["text"], response["user"])
+                self.makeRequest(response.json()["text"], response.json()["user"])
 
         if self.mode in ["read", "text"]:
             while True:
@@ -77,13 +79,6 @@ class Assistant:
                     model="eleven_multilingual_v2"
                 )
                 
-                asyncio.run(elevenlabs.play(audio))
-
-    def audio_callback(self, text:str, start_transcription_time):
-        valid_start = "lumo" in text.lower()
-        if valid_start or (start_transcription_time and self.last_valid_request and (start_transcription_time - self.last_valid_request < timedelta(seconds=15))):
-            print(f"{name}: {text}")
-            self.makeRequest(text, name)
-            self.last_valid_request = datetime.utcnow()
-        else:
-            print(f"User: (Fail)")
+                elevenlabs.play(audio)
+        
+        self.audio_handler.last_sent_time = time.time()

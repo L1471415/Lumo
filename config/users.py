@@ -17,6 +17,21 @@ class User:
 
         return self
 
+    def save_audio_samples(self, audio_samples, sample_rate=16000):
+        self.audio_files = []
+        
+        audio_num = 0
+        for audio_sample in audio_samples:
+            audio_file = f"./files/voice_samples/{self.user_id}_{audio_num}_voice.wav"
+            
+            self.audio_files.append(audio_file)
+
+            wavfile.write(audio_file, sample_rate, audio_sample)
+
+            audio_num += 1
+
+        return self
+
 class Users:
     def __init__(self):
         self.users = {}
@@ -47,13 +62,6 @@ class Users:
                 return True
 
         return False
-
-    def save_audio_sample(self, audio_sample, sample_rate=16000):
-        self.audio_file = f"./config/voice_samples/{self.user_id}_voice.wav"
-
-        wavfile.write(self.audio_file, sample_rate, audio_sample)
-        
-        return self
 
     def __contains__(self, id):
         return id in self.users.keys()

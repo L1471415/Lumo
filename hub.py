@@ -1,9 +1,8 @@
 import socket
-from flask import Flask, request, send_file
+from flask import Flask, request, send_file, jsonify
 import requests
 import threading, signal
 import time
-import json
 from pyngrok import ngrok
 
 from config.config_variables import users
@@ -74,7 +73,7 @@ class Server:
             for line in self.brain.make_request(request.form.get("message"), request.form.get("room"), request.form.get("user")):
                 lines.append(line)
 
-            return {"response": lines}
+            return jsonify({"response": lines})
 
     def process_audio(self):
         received_audio = request.form.get("audio")
@@ -85,15 +84,19 @@ class Server:
         user_similarity = 0.5
 
         for user in users:
-            similarity = sv.calculate_similarity(user.audio_file, cleaned_audio)
+            if not user.audio_files:
+                continue
+            
+            for audio_file in user.audio_files:
+                similarity = sv.calculate_similarity(audio_file, cleaned_audio)
 
-            if similarity > user_similarity:
-                user_similarity = similarity
-                user_id = user.user_id
+                if similarity > user_similarity:
+                    user_similarity = similarity
+                    user_id = user.user_id
 
         transcription = transcribe(received_audio)
 
-        return {"user": user, "text": transcription}
+        return jsonify({"user": user, "text": transcription})
         
 
     #Endpoint is only needed for eventual webpage/phone apps

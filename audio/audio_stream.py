@@ -13,7 +13,7 @@ class VAD:
                               force_reload=True,
                               onnx=False)
 
-    def is_speaking(self, audio):
+    def calc_speech_prob(self, audio):
         audio_tensor = torch.tensor(audio, dtype=torch.int16).to(torch.float32)
 
         overall_speech_prob = 0
@@ -28,10 +28,7 @@ class VAD:
             
         self.model.reset_states() # reset model states after each audio
 
-        if(overall_speech_prob > 0.5):
-            print(overall_speech_prob)
-
-        return overall_speech_prob > 0.5
+        return overall_speech_prob
 
 class AudioHandler:
     def __init__(self):
@@ -43,15 +40,64 @@ class AudioHandler:
         self.RATE = 16000
         self.CHUNK = 1280
 
+        self.last_sent_time = 0
+        self.paused = False
+
         self.vad = VAD()
 
-    def stream(self):
+    def generic_stream(self):
         stream = self.py_audio.open(format=self.FORMAT, channels=self.CHANNELS, rate=self.RATE, input=True, frames_per_buffer=self.CHUNK)
 
+        while True:
+            if not self.paused:
+                yield np.frombuffer(stream.read(self.CHUNK), np.int16)
+            
+    def setup_stream(self):
+        is_speaking = False
+        end_time = 0
+        ready_to_send = False
+
+        audio_data = inbuffer = np.zeros(0)
+
+        has_begun_speaking = False
+
+        for indata in self.generic_stream():
+            is_speaking = self.vad.calc_speech_prob(indata) > 0.35
+
+            if is_speaking:
+                ready_to_send = False
+
+                if not has_begun_speaking:
+                    print("START")
+                    has_begun_speaking = True
+
+                    audio_data = inbuffer
+                    start_time = time.time()
+
+            audio_data = np.concatenate((audio_data, indata))
+
+            if not is_speaking:
+                if not ready_to_send and has_begun_speaking:
+                    end_time = time.time()
+                    ready_to_send = True
+                
+                if ready_to_send and time.time() - end_time > 1.5:
+                    yield audio_data.astype(np.int16).tobytes()
+
+                    has_begun_speaking = False
+                    ready_to_send = False
+                    last_sent_time = time.time()
+                    audio_data = np.zeros(0)
+
+            inbuffer = np.concatenate((inbuffer, indata))
+
+            while len(inbuffer) > self.CHUNK * 20:
+                inbuffer = np.delete(inbuffer, range(0, 1280))
+
+    def transcription_stream(self):
         is_speaking = False
         start_time = 0
         end_time = 0
-        last_sent_time = 0
         ready_to_send = False
 
         audio_data = inbuffer = np.zeros(0)
@@ -62,16 +108,14 @@ class AudioHandler:
 
         has_begun_speaking = False
 
-        while True:
-            indata = np.frombuffer(stream.read(self.CHUNK), np.int16)
-
+        for indata in self.generic_stream():
             wake_word_predictions = model.predict(indata)
 
             wake_word_detected = any(val > 0.2 for val in wake_word_predictions.values())
 
-            is_speaking = self.vad.is_speaking(indata) or wake_word_detected
+            is_speaking = self.vad.calc_speech_prob(indata) > 0.5 or wake_word_detected
 
-            should_listen = wake_word_detected or time.time() - last_sent_time < 5
+            should_listen = wake_word_detected or time.time() - self.last_sent_time < 5
 
             if is_speaking:
                 ready_to_send = False
@@ -91,11 +135,11 @@ class AudioHandler:
                     ready_to_send = True
                 
                 if ready_to_send and time.time() - end_time > 1.5:
-                    yield audio_data.tobytes()
+                    yield audio_data.astype(np.int16).tobytes()
 
                     has_begun_speaking = False
                     ready_to_send = False
-                    last_sent_time = time.time()
+                    self.last_sent_time = time.time()
                     audio_data = np.zeros(0)                
 
             inbuffer = np.concatenate((inbuffer, indata))

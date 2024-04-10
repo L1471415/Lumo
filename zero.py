@@ -1,9 +1,8 @@
 import socket
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import requests
 import threading, signal
 import time
-import json
 
 from music.music import MusicController
 from new_server_architecture.assistant import Assistant

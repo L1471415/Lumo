@@ -1,4 +1,3 @@
-*/config_variables.py
 */__pycache__
 */music_library/
 /intent_cache
@@ -16,3 +15,4 @@ songs.json
 lib/
 bin/
 lib64
+files/models/deep_speaker.h5
