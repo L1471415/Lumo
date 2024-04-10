@@ -24,7 +24,8 @@ class VAD:
                 break
             speech_prob = self.model(chunk, 16000).item()
 
-            overall_speech_prob += speech_prob
+            if speech_prob > overall_speech_prob:
+                overall_speech_prob = speech_prob
             
         self.model.reset_states() # reset model states after each audio
 
@@ -57,12 +58,12 @@ class AudioHandler:
         end_time = 0
         ready_to_send = False
 
-        audio_data = inbuffer = np.zeros(0)
+        audio_data = extra_context_buffer = speech_detect_sample = np.zeros(0)
 
         has_begun_speaking = False
 
         for indata in self.generic_stream():
-            is_speaking = self.vad.calc_speech_prob(indata) > 0.35
+            is_speaking = self.vad.calc_speech_prob(speech_detect_sample) > 0.55
 
             if is_speaking:
                 ready_to_send = False
@@ -71,7 +72,7 @@ class AudioHandler:
                     print("START")
                     has_begun_speaking = True
 
-                    audio_data = inbuffer
+                    audio_data = extra_context_buffer
                     start_time = time.time()
 
             audio_data = np.concatenate((audio_data, indata))
@@ -80,7 +81,7 @@ class AudioHandler:
                 if not ready_to_send and has_begun_speaking:
                     end_time = time.time()
                     ready_to_send = True
-                
+
                 if ready_to_send and time.time() - end_time > 1.5:
                     yield audio_data.astype(np.int16).tobytes()
 
@@ -89,10 +90,15 @@ class AudioHandler:
                     last_sent_time = time.time()
                     audio_data = np.zeros(0)
 
-            inbuffer = np.concatenate((inbuffer, indata))
+            speech_detect_sample = np.concatenate((speech_detect_sample, indata))
 
-            while len(inbuffer) > self.CHUNK * 20:
-                inbuffer = np.delete(inbuffer, range(0, 1280))
+            while len(speech_detect_sample) > self.CHUNK * 20:
+                speech_detect_sample = np.delete(speech_detect_sample, range(0, 1280))
+
+            extra_context_buffer = np.concatenate((extra_context_buffer, indata))
+
+            while len(extra_context_buffer) > self.CHUNK * 20:
+                extra_context_buffer = np.delete(extra_context_buffer, range(0, 1280))
 
     def transcription_stream(self):
         is_speaking = False
@@ -100,7 +106,7 @@ class AudioHandler:
         end_time = 0
         ready_to_send = False
 
-        audio_data = inbuffer = np.zeros(0)
+        audio_data = speech_detect_sample = extra_context_buffer = np.zeros(0)
 
         openwakeword.utils.download_models()
 
@@ -113,9 +119,9 @@ class AudioHandler:
 
             wake_word_detected = any(val > 0.2 for val in wake_word_predictions.values())
 
-            is_speaking = self.vad.calc_speech_prob(indata) > 0.5 or wake_word_detected
+            is_speaking = self.vad.calc_speech_prob(speech_detect_sample.astype(np.int16)) > 0.55 or wake_word_detected
 
-            should_listen = wake_word_detected or time.time() - self.last_sent_time < 5
+            should_listen = wake_word_detected or time.time() - self.last_sent_time < 10
 
             if is_speaking:
                 ready_to_send = False
@@ -124,7 +130,7 @@ class AudioHandler:
                     print("START")
                     has_begun_speaking = True
 
-                    audio_data = inbuffer
+                    audio_data = extra_context_buffer
                     start_time = time.time()
 
             audio_data = np.concatenate((audio_data, indata))
@@ -134,7 +140,7 @@ class AudioHandler:
                     end_time = time.time()
                     ready_to_send = True
                 
-                if ready_to_send and time.time() - end_time > 1.5:
+                if ready_to_send and time.time() - end_time > 1:
                     yield audio_data.astype(np.int16).tobytes()
 
                     has_begun_speaking = False
@@ -142,7 +148,12 @@ class AudioHandler:
                     self.last_sent_time = time.time()
                     audio_data = np.zeros(0)                
 
-            inbuffer = np.concatenate((inbuffer, indata))
+            speech_detect_sample = np.concatenate((speech_detect_sample, indata))
 
-            while len(inbuffer) > self.CHUNK * 20:
-                inbuffer = np.delete(inbuffer, range(0, 1280))
+            while len(speech_detect_sample) > self.CHUNK * 5:
+                speech_detect_sample = np.delete(speech_detect_sample, range(0, 1280))
+            
+            extra_context_buffer = np.concatenate((extra_context_buffer, indata))
+
+            while len(extra_context_buffer) > self.CHUNK * 20:
+                extra_context_buffer = np.delete(extra_context_buffer, range(0, 1280))

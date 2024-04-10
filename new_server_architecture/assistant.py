@@ -3,7 +3,7 @@ import elevenlabs
 from elevenlabs.client import ElevenLabs
 import time
 import requests
-import threading, signal
+import threading
 
 from config.config_variables import api_credentials, name
 from audio.audio_stream import AudioHandler
@@ -31,20 +31,17 @@ class Assistant:
 
         threading.Thread(target=self.start).start()
 
-        signal.signal(signal.SIGINT, signal.SIG_DFL)
-
     def set_server(self, server):
         self.server_ip = f"{server[0]}:{server[1]}"
 
     def start(self):
         if self.mode == "audio":
             for audio in self.audio_handler.transcription_stream():
-                response = requests.post(f"http://{self.server_ip}/process_audio", data=audio)
-                
+                response = requests.post(f"http://{self.server_ip}/process_audio", data=audio)                
                 # self.gui.send_prompt(response["text"])
 
                 self.makeRequest(response.json()["text"], response.json()["user"])
-
+                
         if self.mode in ["read", "text"]:
             while True:
                 text = input(f"{name}: ")
