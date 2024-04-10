@@ -62,7 +62,6 @@ class Brain:
             self.saved_chats[user_id].append( {"role": role, "content": messageBody} )
 
     def make_request(self, messageBody, room_name, user):
-        print(user)
         user_name = "unknown"
         user_id = "unknown"
 
@@ -132,7 +131,8 @@ class Brain:
                     self.saved_chats[user_id].append(result)
             
             elif command[1] == "get_weather":
-                print("WEATHER")               
+                print("WEATHER")
+                print(command)               
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.get_weather(command[2])}
                     yield result

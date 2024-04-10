@@ -4,8 +4,6 @@ from elevenlabs.client import ElevenLabs
 import time
 import requests
 import threading, signal
-import json
-from PIL import Image
 
 from config.config_variables import api_credentials, name
 from audio.audio_stream import AudioHandler
@@ -78,7 +76,6 @@ class Assistant:
                     stream=True
                 )
                 
-                # elevenlabs.play(audio)
                 elevenlabs.stream(audio)
         
         self.audio_handler.last_sent_time = time.time()
