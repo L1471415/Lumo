@@ -74,9 +74,11 @@ class Assistant:
                 audio = elevenlabs_client.generate(
                     text=content,
                     voice=self.voice,
-                    model="eleven_multilingual_v2"
+                    model="eleven_multilingual_v2",
+                    stream=True
                 )
                 
-                elevenlabs.play(audio)
+                # elevenlabs.play(audio)
+                elevenlabs.stream(audio)
         
         self.audio_handler.last_sent_time = time.time()
