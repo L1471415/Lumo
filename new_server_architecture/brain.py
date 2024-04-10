@@ -97,7 +97,7 @@ class Brain:
                 continue
 
             if not "> " in line:
-                line.replace(">", "> ")
+                line = line.replace(">", "> ")
             
             self.saved_chats[user_id].append({"role": "assistant", "content": line})
 
@@ -130,9 +130,7 @@ class Brain:
                     yield result
                     self.saved_chats[user_id].append(result)
             
-            elif command[1] == "get_weather":
-                print("WEATHER")
-                print(command)               
+            elif command[1] == "get_weather":              
                 if len(command) == 3:
                     result = {"role": "system", "content": assistant_functions.get_weather(command[2])}
                     yield result
