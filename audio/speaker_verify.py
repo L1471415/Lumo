@@ -46,3 +46,14 @@ def calculate_similarity(sample_file, audio_array):
     predict_002 = model.m.predict(np.expand_dims(mfcc_002, axis=0))
 
     return batch_cosine_similarity(predict_001, predict_002)
+
+def calculate_similarity_bytes(sample_file, audio_bytes):
+    audio_array - np.frombuffer(audio_bytes)
+
+    mfcc_001 = sample_from_mfcc(read_mfcc(sample_file, SAMPLE_RATE), NUM_FRAMES)
+    mfcc_002 = sample_from_mfcc(read_mfcc_bytes(audio_array, SAMPLE_RATE), NUM_FRAMES)
+
+    predict_001 = model.m.predict(np.expand_dims(mfcc_001, axis=0))
+    predict_002 = model.m.predict(np.expand_dims(mfcc_002, axis=0))
+
+    return batch_cosine_similarity(predict_001, predict_002)

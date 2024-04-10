@@ -77,8 +77,6 @@ class Server:
 
     def process_audio(self):
         received_audio = request.form.get("audio")
-
-        cleaned_audio = sv.clean_audio(received_audio)
         
         user_id = "unknown"
         user_similarity = 0.5
@@ -88,7 +86,7 @@ class Server:
                 continue
             
             for audio_file in user.audio_files:
-                similarity = sv.calculate_similarity(audio_file, cleaned_audio)
+                similarity = sv.calculate_similarity(audio_file, received_audio)
 
                 if similarity > user_similarity:
                     user_similarity = similarity
