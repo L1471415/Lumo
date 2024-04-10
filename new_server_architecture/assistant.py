@@ -41,9 +41,7 @@ class Assistant:
     def start(self):
         if self.mode == "audio":
             for audio in self.audio_handler.transcription_stream():
-                response = requests.post(f"http://{self.server_ip}/process_audio", data={
-                    "audio": audio
-                })
+                response = requests.post(f"http://{self.server_ip}/process_audio", data=audio)
                 
                 # self.gui.send_prompt(response["text"])
 

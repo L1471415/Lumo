@@ -76,7 +76,7 @@ class Server:
             return jsonify({"response": lines})
 
     def process_audio(self):
-        received_audio = request.form.get("audio")
+        received_audio = request.data
         
         user_id = "unknown"
         user_similarity = 0.5
