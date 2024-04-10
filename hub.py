@@ -94,7 +94,7 @@ class Server:
 
         transcription = transcribe(received_audio)
 
-        return jsonify({"user": user.user_id, "text": transcription})
+        return jsonify({"user": user_id, "text": transcription})
 
     #Endpoint is only needed for eventual webpage/phone apps
     def control_mpd_playback(self):
