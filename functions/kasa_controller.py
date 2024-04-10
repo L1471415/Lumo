@@ -74,7 +74,7 @@ class KasaController:
             else:
                 self.devices[identifier] = plug
 
-        kasa.TPLinkSmartHomeProtocol.DEFAULT_TIMEOUT = 5
+        kasa.TPLinkSmartHomeProtocol.DEFAULT_TIMEOUT = 1
 
         devices = await kasa.Discover.discover()
 

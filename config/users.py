@@ -4,6 +4,9 @@ from scipy.io import wavfile
 class User:
     def __init__(self, name, permission_level=1, user_id:str=None):
         self.name = name
+        
+        self.phone_number = None
+        self.audio_files = None
 
         self.permission_level = permission_level
 
