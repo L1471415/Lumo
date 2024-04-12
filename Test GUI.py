@@ -63,26 +63,46 @@ class DisplayInputNew(tk.Tk):
         self.window = Window
         self.messageNumber = messageNumber
         self.displayedMessages = []
+        self.messageHistory = tk.Text()
 
         self.InputWindowFrame = tk.Frame(master=self.window, bg="#2F34A5")
         self.InputWindowFrame.pack(side=tk.BOTTOM)
-        self.scrollbar = tk.Scrollbar(master=self.InputWindowFrame)
-        self.scrollbar.grid(column=9, row=7)
+        #self.scrollbar = tk.Scrollbar(master=self.InputWindowFrame)
+        #self.scrollbar.grid(column=9, row=7)
 
-        if (self.messageNumber > len(textStorage) or self.messageNumber < 0):
-            self.messageNumber = len(textStorage)
-        
     def destroyItself(self):
         self.InputWindowFrame.destroy()
 
     def updateText(self):
-        for i in self.displayedMessages:
-            i.destroy()
+        #for i in self.displayedMessages:
+        #    i.destroy()
+        #
+        self.messageHistory.destroy()
+        
+        messageHistory = tk.Text(self.InputWindowFrame, width= 50, scroll='x')
+        messageHistory.grid(column=1, row=0)
 
-        for i in range(self.messageNumber):
-            newMessage = tk.Label(self.InputWindowFrame, text=textStorage[len(textStorage)-i-1], background = "#188FA7")
-            newMessage.grid(column=1, row=0+i)
-            self.displayedMessages.append(newMessage)
+        if (self.messageNumber <= 0):
+            for i in range(len(textStorage)):
+                #newMessage = tk.Label(self.InputWindowFrame, text=textStorage[len(textStorage)-i-1], background = "#188FA7")
+                #newMessage = tk.Text(self.InputWindowFrame, height = 3, width= 50)
+                #newMessage.grid(column=1, row=0+i)
+                #newMessage.insert(tk.END, textStorage[len(textStorage)-i-1])
+                
+                
+                #self.displayedMessages.append(newMessage)
+
+                messageHistory.insert(tk.End, "\n" + textStorage[len(textStorage)-i-1])
+
+        else:
+            for i in range(self.messageNumber):
+                #newMessage = tk.Label(self.InputWindowFrame, text=textStorage[len(textStorage)-i-1], background = "#188FA7")
+                #newMessage = tk.Text(self.InputWindowFrame, height = 3, width= 50)
+                #newMessage.grid(column=1, row=0+i)
+                #newMessage.insert(tk.END, textStorage[len(textStorage)-i-1])
+                #self.displayedMessages.append(newMessage)
+                messageHistory.insert(tk.End, "\n" + textStorage[len(textStorage)-i-1])
+
 
 class ShowVideo(tk.Tk):
     def __init__(self, Window):
@@ -107,12 +127,19 @@ class Window:
         self.button = tk.Button(self.window_frame, text="switch to input mode", command=self.writeToLumo)
         self.button.grid(column= 1, row = 2)
 
-        self.destructionButton = tk.Button(self.window_frame, text="update text", command=self.textUpdate)
-        self.destructionButton.grid(column=1, row= 4)
+        self.updateTextTest = tk.Button(self.window_frame, text="update text", command=self.textUpdate)
+        self.updateTextTest.grid(column=1, row= 4)
 
         self.destructionButton = tk.Button(self.window_frame, text="destroy all", command=self.destroyAll)
         self.destructionButton.grid(column=1, row= 3)
 
+        self.text = tk.Text(self.window_frame, height = 5, width = 52)
+        temp = """WHAT WHAT WHAT WHAT WHAT WHAT WHAT
+        fdsafkdsanfkdsaf
+            oinoindsaf
+        """
+
+        self.text.insert(tk.INSERT, temp)
 
         self.tk.mainloop()
 
@@ -120,8 +147,8 @@ class Window:
         print("test")
 
     def writeToLumo(self):
-        self.DisplayInput = DisplayInputNew(self.tk, 99)
         self.TextInput = TextInputNew(self.tk)
+        self.DisplayInput = DisplayInputNew(self.tk, -1)
 
     def textUpdate(self):
         self.DisplayInput.updateText()
