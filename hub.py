@@ -48,7 +48,7 @@ class Server:
         self.app.route("/control_music_playback", methods=['POST'])(self.control_mpd_playback)
         self.app.route("/sms", methods=['POST'])(self.handle_sms)
         self.app.route("/image", methods=['GET'])(self.get_image)
-        self.app.route("/save_voice", methods=['POST'])(self.save_voice_sample)
+        self.app.route("/save_voice", methods=['POST'])(self.save_voice)
 
         threading.Thread(target=self.listen_for_devices, name="lumo_listener").start()
         threading.Thread(target=self.heartbeat, name="heartbeat_thread").start()
@@ -108,7 +108,7 @@ class Server:
             user = User(name=name, permission_level=1)
         else:
             user = users.get_user_by_name(name)
-            
+
         user.save_audio_samples(audio_samples=audio)
 
         users.add_user(user)
