@@ -4,14 +4,12 @@ import json
 
 class User:
     def __init__(self, name=None, permission_level=1, user_id:str=None, json:dict=None):
-        if name:
-            self.name = name
+        self.name = name
         
         self.phone_number = None
         self.audio_files = None
 
-        if permission_level:
-            self.permission_level = permission_level
+        self.permission_level = permission_level
 
         if user_id is None:
             self.user_id = str(uuid.uuid4())
