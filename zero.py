@@ -4,7 +4,7 @@ import requests
 import threading, signal
 import time
 
-from music.music import MusicController
+# from music.music import MusicController
 from new_server_architecture.assistant import Assistant
 
 from config.config_variables import assistant_mode, room

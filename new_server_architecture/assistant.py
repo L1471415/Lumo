@@ -63,6 +63,7 @@ class Assistant:
             except Exception as e:
                 print(e)
         elif role == "voice_id":
+            print("VOICE_ID-ing")
             self.audio_handler.paused = True
 
             name, create_new, audio_clips = record_user_sample()

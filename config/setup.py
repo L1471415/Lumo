@@ -143,7 +143,7 @@ def record_user_sample(name=None):
                 
                 elevenlabs.play(repeat_confirm_audio)
 
-    text_examples = ["Hey Lumo", "Hey Lumo, what time is it?", "Hey Lumo, what's the weather like today?", "Hey Lumo, can you turn off the lights in the Living Room?"]
+    text_examples = ["Hey Lumo, what's the weather like today?", "Hey Lumo, can you turn off the lights in the Living Room?"]
     audio_clips = []
 
     first_prompt_audio = b''.join(elevenlabs_client.generate(
