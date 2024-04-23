@@ -21,7 +21,10 @@ class Server:
 
         self.assistant = Assistant(mode=assistant_mode, voice="lumo", room=room)
 
-        self.get_lumo_hub()
+        # self.get_lumo_hub()
+
+        self.lumo_hub = ("remarkably-immortal-calf.ngrok-free.app", "8001")
+        self.assistant.set_server(self.lumo_hub)
 
         self.app.route("/send_response", methods=['POST'])(self.handle_response)
 

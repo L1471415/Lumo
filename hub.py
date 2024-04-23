@@ -30,7 +30,9 @@ class Server:
         self.port = port
 
         # Format is {"room_name": "ip"}
-        self.device_list = {}
+        self.device_list = {
+            "dorm": "actual-arachnid-generally.ngrok-free.app"
+        }
         
         self.brain = Brain()
 
