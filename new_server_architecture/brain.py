@@ -274,6 +274,9 @@ class Brain:
                     result = {"role": "system", "content": assistant_functions.remove_alarm_static_at(command[2], command[3])}
                     self.saved_chats[user_id].append(result)
 
+            elif command[1] == "learn_voice":
+                yield {"role": "voice_id", "content": "voice_id"}
+
             else:
                 result = {"role": "assistant", "content": line}
                 yield result

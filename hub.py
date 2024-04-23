@@ -7,6 +7,8 @@ from pyngrok import ngrok
 
 from config.config_variables import users
 
+from config.users import User
+
 from new_server_architecture.brain import Brain
 from new_server_architecture.mpd_handler import MPDHandler
 from new_server_architecture.twilio_controller import TwilioController
@@ -46,6 +48,7 @@ class Server:
         self.app.route("/control_music_playback", methods=['POST'])(self.control_mpd_playback)
         self.app.route("/sms", methods=['POST'])(self.handle_sms)
         self.app.route("/image", methods=['GET'])(self.get_image)
+        self.app.route("/save_voice", methods=['POST'])(self.save_voice_sample)
 
         threading.Thread(target=self.listen_for_devices, name="lumo_listener").start()
         threading.Thread(target=self.heartbeat, name="heartbeat_thread").start()
@@ -95,6 +98,20 @@ class Server:
         transcription = transcribe(received_audio)
 
         return jsonify({"user": user_id, "text": transcription})
+
+    def save_voice(self):
+        name = request.json["user_name"]
+        audio = request.json["audio_samples"]
+        create_new = request.json["create_new"]
+
+        if create_new:
+            user = User(name=name, permission_level=1)
+        else:
+            user = users.get_user_by_name(name)
+            
+        user.save_audio_samples(audio_samples=audio)
+
+        users.add_user(user)
 
     #Endpoint is only needed for eventual webpage/phone apps
     def control_mpd_playback(self):

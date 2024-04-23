@@ -6,7 +6,7 @@ from scipy.io import wavfile
 
 from audio.audio_stream import AudioHandler
 from audio.transcribe import transcribe
-from config.config_variables import api_credentials, users
+from config.config_variables import api_credentials
 from config.users import User
 
 elevenlabs_client = ElevenLabs(api_key=api_credentials["elevenlabs"]["key"])
@@ -63,7 +63,7 @@ def record_user_sample(name=None):
                     elevenlabs.play(repeat_query_audio)
 
             user_confirm_response = "neither"
-            
+
             repeat_confirm_audio = None
 
             name_confirm_audio = b''.join(elevenlabs_client.generate(
@@ -100,12 +100,48 @@ def record_user_sample(name=None):
                 else:
                     if not repeat_confirm_audio:
                         repeat_confirm_audio = b''.join(elevenlabs_client.generate(
-                            text="I'm sorry, I didn't quite get that.",
+                            text="I'm sorry, I didn't quite get that. Would you mind repeating it?",
                             voice=lumo_voice,
                             model="eleven_multilingual_v2"
                         ))
                     
                     elevenlabs.play(repeat_confirm_audio)
+    
+    create_new = True
+    if True:
+        user_confirm_response = "neither"
+
+        name_confirm_audio = b''.join(elevenlabs_client.generate(
+            text=f"It looks like a user with the name {name} already exists, is that you?",
+            voice=lumo_voice,
+            model="eleven_multilingual_v2"
+        ))
+        while "neither" in user_confirm_response:
+            elevenlabs.play(name_confirm_audio)
+            
+            audio_sample = next(audio_generator)
+            transcription = transcribe(audio_sample, prompt="").lower()
+
+            user_confirm_response = openai.chat.completions.create(model="gpt-3.5-turbo", messages=[
+                {"role": "system", "content": "Was the users response a confirmation (eg yes, correct, etc), a rejection (eg no, wrong, etc), or neither. Answer with only one word(confirmed, rejected, or neither)"},
+                {"role": "user", "content": transcription}
+            ]).choices[0].message.content.lower()
+
+            print(user_confirm_response)
+
+            if "confirm" in user_confirm_response:
+                create_new = False
+            elif "reject" in user_confirm_response:
+                create_new = True
+            else:
+                if not repeat_confirm_audio:
+                    repeat_confirm_audio = b''.join(elevenlabs_client.generate(
+                        text="I'm sorry, I didn't quite get that. Would you mind repeating it?",
+                        voice=lumo_voice,
+                        model="eleven_multilingual_v2"
+                    ))
+                
+                elevenlabs.play(repeat_confirm_audio)
 
     text_examples = ["Hey Lumo", "Hey Lumo, what time is it?", "Hey Lumo, what's the weather like today?", "Hey Lumo, can you turn off the lights in the Living Room?"]
     audio_clips = []
@@ -142,14 +178,19 @@ def record_user_sample(name=None):
             else:
                 if not reprompt_audio:
                     reprompt_audio = b''.join(elevenlabs_client.generate(
-                        text=f"I'm sorry, I didn't quite get that. Please repeat the following: f{text_example}",
+                        text=f"I'm sorry, I didn't quite get that. Please repeat the following: {text_example}",
                         voice=lumo_voice,
                         model="eleven_multilingual_v2"
                     ))
                 
                 elevenlabs.play(reprompt_audio)
 
-    return {"name": name, "audio": audio_clips}
+    finished_audio = b''.join(elevenlabs_client.generate(
+        text=f"Great! I've finished learning your voice. In the future, your voice will be associated with your user profile.",
+        voice=lumo_voice,
+        model="eleven_multilingual_v2"
+    ))
+                
+    elevenlabs.play(finished_audio)
 
-if __name__ == "__main__":
-    record_user_sample()
+    return name, create_new, audio_clips

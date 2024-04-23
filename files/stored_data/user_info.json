@@ -1,8 +1,1 @@
-{
-    "uuid": {
-        "user-id": "uuid",
-        "name": "name",
-        "phone": "number",
-        "voices": ["files/voice_samples/uuid_voice.wav"]
-    }
-}
+[]

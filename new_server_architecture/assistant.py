@@ -7,6 +7,7 @@ import threading
 
 from config.config_variables import api_credentials, name
 from audio.audio_stream import AudioHandler
+from config.setup import record_user_sample
 
 assistant_voice = {
     "luma": "nmVu5pKR445tWxY6JPEF",
@@ -61,6 +62,18 @@ class Assistant:
                 print(f"http://{self.server_ip}/image?image={content}")
             except Exception as e:
                 print(e)
+        elif role == "voice_id":
+            self.audio_handler.paused = True
+
+            name, create_new, audio_clips = record_user_sample()
+
+            self.audio_handler.paused = False
+
+            requests.post(f"http://{self.server_ip}/save_voice", json={
+                "user_name": name,
+                "create_new": create_new,
+                "audio_samples": audio_clips
+            })
         else:
             print(f"Lumo: {content}")
             # self.gui.send_response(text)
