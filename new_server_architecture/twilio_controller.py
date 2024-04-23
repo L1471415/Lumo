@@ -14,7 +14,7 @@ class Contacts:
             names = contact_list[number]
 
             if not users.contains_number(number):
-                users.add_user(User(names[0], 0).add_phone_number(number))
+                users.add_user(User(name=names[0], permission_level=0).add_phone_number(number))
 
             for name in names:
                 name = name.lower()
