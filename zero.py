@@ -3,6 +3,7 @@ from flask import Flask, request
 import requests
 import threading, signal
 import time
+from pyngrok import ngrok
 
 # from music.music import MusicController
 from new_server_architecture.assistant import Assistant
@@ -21,10 +22,7 @@ class Server:
 
         self.assistant = Assistant(mode=assistant_mode, voice="lumo", room=room)
 
-        # self.get_lumo_hub()
-
-        self.lumo_hub = ("remarkably-immortal-calf.ngrok-free.app", "8001")
-        self.assistant.set_server(self.lumo_hub)
+        self.get_lumo_hub()
 
         self.app.route("/send_response", methods=['POST'])(self.handle_response)
 
