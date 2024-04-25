@@ -1,5 +1,10 @@
 import tkinter as tk
 from tkinter import ttk   
+from PIL import Image, ImageTk
+from datetime import datetime
+import pytz
+from config import config_variables
+import requests, json
 
 #color palette black: #000000, Egyptian blue: #2F34A5, Blue (Munsell): #188FA7, Air superiority blue: #769FB6, Princeton orange: #F88F1E
 
@@ -39,18 +44,23 @@ class TextInputNew(tk.Tk):
     def __init__(self, Window):
         self.window = Window
         self.new_window_frame = tk.Frame(master=self.window, bg="#188FA7")
-        self.new_window_frame.pack(side=tk.BOTTOM)
+        #self.new_window_frame.pack(side=tk.BOTTOM)
+        self.new_window_frame.grid(column=0, row=5)
 
-        
-        self.enterText = tk.Entry(self.new_window_frame)
+
+        self.enterText = tk.Text(self.new_window_frame, width=60, height=4)
+        #self.enterText = tk.Entry(self.new_window_frame)
         self.submitButton = ttk.Button(self.new_window_frame, text="submit", command=self.submission)
 
         self.enterText.grid(column=1, row = 1)
         self.submitButton.grid(column=2, row = 1)
 
     def submission(self):
-        what = self.enterText.get()
+        what = "User: "
+        what += self.enterText.get("1.0", 'end-1c')
         textStorage.append(what)
+        print(textStorage)
+        self.enterText.delete('1.0', tk.END)
 
     def destroyItself(self):
         self.new_window_frame.destroy()
@@ -67,7 +77,8 @@ class DisplayInputNew(tk.Tk):
         self.messageHistory = tk.Text()
 
         self.InputWindowFrame = tk.Frame(master=self.window, bg="#2F34A5")
-        self.InputWindowFrame.pack(side=tk.BOTTOM)
+        self.InputWindowFrame.grid(column=0, row=6)
+        #self.InputWindowFrame.pack(side=tk.BOTTOM)
         #self.scrollbar = tk.Scrollbar(master=self.InputWindowFrame)
         #self.scrollbar.grid(column=9, row=7)
 
@@ -98,25 +109,56 @@ class DisplayInputNew(tk.Tk):
 class ShowVideo(tk.Tk):
     def __init__(self, Window):
         videoplayer = TkinterVideo(master=root)
-        self.window = Window
+        self.window = self.InputWindowFrame = tk.Frame(master=self.window, bg="#2F34A5")
+
     # video code
 
-class Window:
-    def __init__(self):
-        self.tk = tk.Tk()
+class HomeScreen(tk.Tk):
+    def __init__(self, Window):
+        self.Window = Window
+        self.HomeScreenWindowFrame  = tk.Frame(master=self.Window, bg="#188FA7")
+        self.HomeScreenWindowFrame.grid(column = 0, row = 0)
+        self.current_time = tk.Label(self.HomeScreenWindowFrame, text="null").grid(column= 0, row = 0)
+        # Get the timezone object for New York
 
-        self.tk.geometry('800x600') 
+    def updateTime(self):
 
-        self.tk.title("Lumo? I hardely Know her!!!!")
+        timeZ= pytz.timezone(config_variables.country+"/"+config_variables.city) 
+        date = datetime.now(timeZ)
+        self.current_time.configure(text=date.strftime("%H:%M:%S"))
+
+    def loadWeather(self, Time):
+        self.url = "http://api.openweathermap.org/data/2.5/weather?appid=" + config_variables.api_credentials["openWeatherMap"]["key"] + config_variables.city
+        weather_data = requests.get(self.url).json()
+        tk.Label(self.HomeScreenWindowFrame, text="Tempature:" + weather_data["daily"]["temp"][Time]).grid(column=0, row=1)
+        tk.Label(self.HomeScreenWindowFrame, text="Weather:" + weather_data["daily"]["weather"]["main"]).grid(column=0, row=2)
+        tk.Label(self.HomeScreenWindowFrame, text="News:" + weather_data["daily"]["alerts"]["sender_name"]).grid(column=0, row=3)
+        tk.Label(self.HomeScreenWindowFrame, text="News:" + weather_data["daily"]["alerts"]["description"]).grid(column=0, row=4)
+
+        # config variables are different in the main branch so it will just be a proof of concept for now
+
+    def destroyItself(self):
+        self.HomeScreenWindowFrame.destroy()
+        
+class Testscreen(tk.Tk):
+    def __init__(self, Window):
+        self.tk = Window
+
         self.window_frame = tk.Frame(master=self.tk, bg="#769FB6")
-        self.window_frame.pack(fill = tk.BOTH, expand=True)
-        ttk.Label(self.window_frame, text="Hello Lumo!").grid(column=1, row=0)
-        button = tk.Button(self.window_frame, text="End Program", command=self.destroy).grid(column = 99, row = 99)
+        #self.window_frame.pack(fill = tk.BOTH, expand=True)
+        self.window_frame.grid(column=0, row=0)
 
-        #self.text_input = TextInput(self.window_frame)
+        canvas = tk.Canvas(master=self.window_frame)
+        canvas.create_oval(10, 10, 10, 10, outline = "blue", fill = "white",width = 2)
+        #canvas.grid(column=0, row=0)
+
+        image = Image.open("./new_logo.png")
+        image = image.resize((100, 100))
+        tk_image = ImageTk.PhotoImage(image)
+        tk.Label(self.window_frame, image=tk_image).grid(column = 0, row = 0)
 
         self.button = tk.Button(self.window_frame, text="switch to input mode", command=self.writeToLumo)
-        self.button.grid(column= 1, row = 2)
+        self.button.grid(column= 1, row = 2, padx=100)
 
         self.updateTextTest = tk.Button(self.window_frame, text="update text", command=self.textUpdate)
         self.updateTextTest.grid(column=1, row= 4)
@@ -124,10 +166,50 @@ class Window:
         self.destructionButton = tk.Button(self.window_frame, text="destroy all", command=self.destroyAll)
         self.destructionButton.grid(column=1, row= 3)
 
+
+class Window:
+    def __init__(self):
+        self.tk = tk.Tk()
+
+        self.tk.geometry('550x500') 
+        self.tk.title("Lumo")
+
+        # Homescreen is broken for now fix later
+        self.loadHomeScreen()
+        self.tempFrame = tk.Frame(master=self.tk, bg="#769FB6").grid(column=0, row=1)
+        #tk.Button(self.tempFrame, text="Exit HomeScreen", command=self.ExitHomeScreen()).grid(column=0, row=0)
+
         self.tk.mainloop()
 
-    def displayHomeScreen(self):
-        print("test")
+    def loadHomeScreen(self):
+        self.HomeScreen = HomeScreen(self.tk)
+
+    def ExitHomeScreen(self):
+        self.HomeScreen.destroyItself()
+        self.loadTestScreen()
+
+    def loadTestScreen(self):
+        self.window_frame = tk.Frame(master=self.tk, bg="#769FB6")
+        #self.window_frame.pack(fill = tk.BOTH, expand=True)
+        self.window_frame.grid(column=0, row=0)
+
+        canvas = tk.Canvas(master=self.window_frame)
+        canvas.create_oval(10, 10, 10, 10, outline = "blue", fill = "white",width = 2)
+        #canvas.grid(column=0, row=0)
+
+        image = Image.open("./new_logo.png")
+        image = image.resize((100, 100))
+        tk_image = ImageTk.PhotoImage(image)
+        tk.Label(self.window_frame, image=tk_image).grid(column = 0, row = 0)
+
+        self.button = tk.Button(self.window_frame, text="switch to input mode", command=self.writeToLumo)
+        self.button.grid(column= 1, row = 2, padx=100)
+
+        self.updateTextTest = tk.Button(self.window_frame, text="update text", command=self.textUpdate)
+        self.updateTextTest.grid(column=1, row= 4)
+
+        self.destructionButton = tk.Button(self.window_frame, text="destroy all", command=self.destroyAll)
+        self.destructionButton.grid(column=1, row= 3)
 
     def writeToLumo(self):
         self.TextInput = TextInputNew(self.tk)
