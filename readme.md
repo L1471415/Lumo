@@ -6,7 +6,7 @@
 
 ## About ##
 
-  Lumo is an open source, privacy focused, and decentralized home assistant similar in function to Alexa or Google Home. It can send text messages, search wikipedia, generate images, control lights, and perform many other useful features.
+  Lumo is an open source, privacy focused, and self-hosted home assistant similar in function to Alexa or Google Home. It can send text messages, search wikipedia, generate images, control lights, and perform many other useful features.
 
 ## Goals ##
 

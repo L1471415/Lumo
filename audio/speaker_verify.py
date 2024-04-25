@@ -27,7 +27,7 @@ def clean_audio(audio):
     return audio[offsets[0]:offsets[-1]]
 
 # Original Sample Code from: Phillpperemy, developer of Deep-Speaker https://github.com/philipperemy/deep-speaker
-def calculate_similarity_files(filepath_1, filepath_2):
+def calculate_similarity_file_file(filepath_1, filepath_2):
 
     mfcc_001 = sample_from_mfcc(read_mfcc(filepath_1, SAMPLE_RATE), NUM_FRAMES)
     mfcc_002 = sample_from_mfcc(read_mfcc(filepath_2, SAMPLE_RATE), NUM_FRAMES)
@@ -37,8 +37,7 @@ def calculate_similarity_files(filepath_1, filepath_2):
 
     return batch_cosine_similarity(predict_001, predict_002)
 
-def calculate_similarity(sample_file, audio_array):
-
+def calculate_similarity_file_arr(sample_file, audio_array):
     mfcc_001 = sample_from_mfcc(read_mfcc(sample_file, SAMPLE_RATE), NUM_FRAMES)
     mfcc_002 = sample_from_mfcc(read_mfcc_bytes(audio_array, SAMPLE_RATE), NUM_FRAMES)
 
@@ -47,8 +46,8 @@ def calculate_similarity(sample_file, audio_array):
 
     return batch_cosine_similarity(predict_001, predict_002)
 
-def calculate_similarity_bytes(sample_file, audio_bytes):
-    audio_array - np.frombuffer(audio_bytes)
+def calculate_similarity_file_bytes(sample_file, audio_bytes):
+    audio_array = np.frombuffer(audio_bytes)
 
     mfcc_001 = sample_from_mfcc(read_mfcc(sample_file, SAMPLE_RATE), NUM_FRAMES)
     mfcc_002 = sample_from_mfcc(read_mfcc_bytes(audio_array, SAMPLE_RATE), NUM_FRAMES)

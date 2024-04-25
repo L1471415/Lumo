@@ -108,25 +108,27 @@ class AudioHandler:
 
         audio_data = speech_detect_sample = extra_context_buffer = np.zeros(0)
 
-        openwakeword.utils.download_models()
+        # openwakeword.utils.download_models()
 
-        model = openwakeword.Model(["files/models/Lumo.tflite", "files/models/Hey_Lumo.tflite"])
+        # model = openwakeword.Model(["files/models/Lumo.tflite", "files/models/Hey_Lumo.tflite"])
 
         has_begun_speaking = False
 
         for indata in self.generic_stream():
             wake_word_predictions = model.predict(indata)
 
-            wake_word_detected = any(val > 0.2 for val in wake_word_predictions.values())
+            # wake_word_detected = any(val > 0.2 for val in wake_word_predictions.values())
 
-            is_speaking = self.vad.calc_speech_prob(speech_detect_sample.astype(np.int16)) > 0.55 or wake_word_detected
+            # is_speaking = self.vad.calc_speech_prob(speech_detect_sample.astype(np.int16)) > 0.55 or wake_word_detected
+            is_speaking = self.vad.calc_speech_prob(speech_detect_sample.astype(np.int16)) > 0.55
 
-            should_listen = wake_word_detected or time.time() - self.last_sent_time < 10
+            # should_listen = wake_word_detected or time.time() - self.last_sent_time < 5
 
             if is_speaking:
                 ready_to_send = False
 
-                if not has_begun_speaking and should_listen:
+                if not has_begun_speaking:
+                # if not has_begun_speaking and should_listen:
                     print("START")
                     has_begun_speaking = True
 
