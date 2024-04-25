@@ -115,7 +115,7 @@ class AudioHandler:
         has_begun_speaking = False
 
         for indata in self.generic_stream():
-            wake_word_predictions = model.predict(indata)
+            # wake_word_predictions = model.predict(indata)
 
             # wake_word_detected = any(val > 0.2 for val in wake_word_predictions.values())
 
