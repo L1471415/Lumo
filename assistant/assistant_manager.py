@@ -41,7 +41,9 @@ class Assistant:
 
         elif self.mode in ["read", "text"]:
             while True:
+                import Test_GUI.py
                 text = input("User: ")
+                # edit this for GUI
                 self.makeRequest(text, name)
 
     async def read(self, text):

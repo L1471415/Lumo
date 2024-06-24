@@ -57,28 +57,36 @@ class Brain:
             self.saved_chats.pop(self.last_system_chat)
 
     def makeRequest(self, messageBody, room_name, role="user", server=None, user="unknown"):
+        # I force lumo to do things with the message I transcribed from the user!!!
 
+        # I am creating a profile for the user to store all their chats with lumo.
         if not user in self.saved_chats.keys():
             self.saved_chats[user] = self.initial_person
 
             self.saved_chats[user][0]["content"] += user + "."
 
 
+        # this is the structure for lumo chat messages
         new_chats = []
 
         new_chats.append( {"role": role, "content": messageBody} )
 
+        # goes through all the users and gets rid of any excess messages that goes over 15 saved chats
         while len(self.saved_chats[user]+new_chats) > (self.last_system_chat + 15):
             self.saved_chats[user].pop(self.last_system_chat)
 
+        # right here it chats directly with chatGBT
         chat_completion = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=self.saved_chats[user]+new_chats)
 
+        # takes the completed message and stores it with the users personal chat
         self.saved_chats[user].append(chat_completion.choices[0].message)
 
+        # Grabs all the raw juicy text data from lumo and splits it up into chunks
         lines = chat_completion.choices[0].message.content.splitlines()
 
         parsed_lines = []
 
+        # This is the main loop where we take our raw chatgbt data and start to translate it and give lumo commands.
         for line in lines:            
             if not line or line.isspace():
                 continue
@@ -95,6 +103,8 @@ class Brain:
             command = line.split(" ")
             
             #format command so command[2] is arg1, command[3] is arg2, etc
+
+            #Assistant functions make calls to ChatGBT directly
             arg = 2
             while len(command) > arg: 
                 if '"' in command[arg]:
@@ -213,6 +223,17 @@ class Brain:
             elif command[1] == "control_music":
                 new_chats.append({"role": "system", "content": f"Setting music to {' '.join(command[2:])}"})
                 parsed_lines.append({"role": "music", "content": " ".join(command[2:]) })
+
+            # test function I made so it may not work
+            elif command[1] == "generate_text_document":                
+                result = {"role": "system", "content": assistant_functions.generate_text_document(chat_completion.choices[0].message)}
+                parsed_lines.append( result )
+                new_chats.append(result)
+                
+                # if len(command) == 4:
+                    # result = {"role": "system", "content": assistant_functions.get_weather_at(command[2], command[3])}
+                    # parsed_lines.append( result )
+                    # new_chats.append(result)
 
             else:
                 print(command)

@@ -266,6 +266,11 @@ def find_nearby_locations(location_type, location=None):
         return locations
     except:
         return "Error, could not find locations"
+    
+    def generate_text_document(text):
+        f = open("myfile.txt", "w") 
+        f.write(text)
+        return "success"
 
 def wake_up():
     return f"Good morning. {get_weather('Get an overview of the upcoming weather over the next 12 hours')}"
