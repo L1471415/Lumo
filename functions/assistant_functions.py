@@ -267,9 +267,9 @@ def find_nearby_locations(location_type, location=None):
     except:
         return "Error, could not find locations"
     
-    def generate_text_document(text):
-        f = open("myfile.txt", "w") 
-        f.write(text)
+    def generate_text_document(filename, message):
+        f = open(filename, "w") 
+        f.write(message)
         return "success"
 
 def wake_up():

@@ -298,52 +298,44 @@
         "parameters": {
             "type": "object",
             "properties": {
-                "title": {
-                    "description": "the title of the document the user wants to store the informaiton"
-                },
-                "message": {
-                    "description": "the actual text to be put into the text file"
-                }
+                "color": {
+                    "description": "The color of the light, can be [Red, Orange, Yellow, Green, Blue, Purple, Pink, Cyan, Magenta, White, Warm White, Cool White]" },
+                "room_name": {
+                    "description": "Room to control the lights in. This is optional, as by default it will change the color of the lights in the room the user is in"}
             },
             "required": [
                 "color"
             ]
         },
         "example": [
-            {"user": "Hey Lumo can you record the phrase \" Billy Cheese \" into my notes file"},
-            {"assistant": "Sure thing\n> The message \"Billy Cheese\" \"notes.txt\""},
+            {"user": "Hey can you set the lights to a warm white"},
+            {"assistant": "Sure thing\n> room_light_color \"Warm White\""},            
             {"user": "And can you turn the lights in the kitchen to purple?"},
             {"assistant": "Certainly.\n> room_light_color Purple kitchen"}
         ]
     },
     {
         "name": "generate_text_document",
-        "description": "Creates a text document using the users audio input",
+        "description": "Creates a text document with specific information upon the users request",
         "parameters": {
             "type": "object",
             "properties": {
-                "hours_past": {
-                    "description": "The time in hours from now to set the alarm, in 24 hour time with no :"
+                "record_self": {
+                    "description": "Record and write down what the user said to the text file"
                 },
-                "repeat_days": {
-                    "description": "The specific days of the week to repeat the alarm on, seperated by spaces"
+                "file_name": {
+                    "description": "Name of file being created"
                 }
             },
             "required": [
-                "hours_past"
+                "file_name"
             ]
         },
         "example": [
-            {"user": "Can you set me an alarm?"},
-            {"assistant": "Sure thing, when would you like this alarm to go off?"},
-            {"user": "5 and a half hours from now"},
-            {"assistant": "Just to make sure, should this alarm be one time, or are there days it should repeat?"},
-            {"user": "every weekend"},
-            {"assistant": "Sure thing, let me set that alarm for you.\n> set_alarm_relative 5.5 \"Saturday Sunday\""},
-            {"user": "Can you also set me an alarm for 2 hours ago?"},
-            {"assistant": "Sure, should this alarm repeat?"},
-            {"user": "No, just one time"},
-            {"assistant": "Great, I set the alarm for you\n> set_alarm_relative -2"}
+            {"user": "Can you record that there are 50 states in the USA to my notes?"},
+            {"assistant": "Sure thing. \n generate_text_document notes False \"there are 50 states in the USA\""}
+            {"user": "Can you also write down everything I say in this sentence?"},
+            {"assistant": "Sure thing. \n generate_text_document notes True \"\""}
         ]
     }
 ]

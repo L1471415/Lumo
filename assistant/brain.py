@@ -225,8 +225,13 @@ class Brain:
                 parsed_lines.append({"role": "music", "content": " ".join(command[2:]) })
 
             # test function I made so it may not work
-            elif command[1] == "generate_text_document":                
-                result = {"role": "system", "content": assistant_functions.generate_text_document(chat_completion.choices[0].message)}
+            elif command[1] == "generate_text_document":     
+                if len(command) == 5:
+                    if (command[3]):           
+                        result = {"role": "system", "content": assistant_functions.generate_text_document(command[2], command[4])}
+                    else:
+                        result = {"role": "system", "content": assistant_functions.generate_text_document(command[2], chat_completion.choices[0].message)}
+
                 parsed_lines.append( result )
                 new_chats.append(result)
                 
