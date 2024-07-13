@@ -38,11 +38,10 @@ extraButton = tk.Button(root, text = "TEST")
 extraButton.place(x = 200, y = 300, height = 100, width = 100)
 '''
 class MyGUI:
-
     def __init__(self):
+        
+        #self.root = tk.Tk()   
         '''
-        self.root = tk.Tk()
-
         self.label = tk.Label(self.root, text = "message", font = ("Arial", 18))
         self.label.pack(padx = 10, pady = 10)
 
@@ -56,6 +55,7 @@ class MyGUI:
 
         self.button = tk.Button(self.root, text = "Show Message", font = ("Arial", 18), command = self.show_message)
         self.button.pack(padx = 10, pady = 10)
+        
         '''
         self.root = tk.Tk()
         
@@ -101,5 +101,5 @@ class MyGUI:
 
     def show_message(self):
         print(self.check_state.get())
-
+    
 MyGUI()
