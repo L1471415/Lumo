@@ -1,0 +1,19 @@
+get_weather:
+  args:
+    - location (optional)
+  effect:
+    - gives short weather forecast as json system prompt
+
+get_time:
+  args:
+    - location (required)
+  effect:
+    - gives the current time in the specified location as a system prompt
+
+toggle_lights:
+  args:
+    - room_name (required)
+    - state (optional): ["on", "off"]
+    - color (optional): "#RRGGBB"
+  effect:
+    - turns the light to state (on/off) if provided, and to color (hex code) if provided

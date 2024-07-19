@@ -1,5 +1,5 @@
 import tkinter as tk
-
+from datetime import datetime
 from new_server_architecture.lumo_chat_management import LumoChatManager
 
 with open("./files/gpt_prompts/commands.yaml", "r", encoding="utf8") as commands:
@@ -11,14 +11,30 @@ with open("./files/gpt_prompts/commands.yaml", "r", encoding="utf8") as commands
         ])
 
 root = tk.Tk()
-root.geometry('500x400')
+root.geometry('1000x400')
 root.title("Page Testing")
 
 def get_user_text():
    #print(textVariable)
-   emptyLabel.config(text = "you typed " + data.get())
-   for line in lumo_chat_manager.chat(message = data.get()):
-        emptyLabel.config(text = line)
+   #emptyLabel.config(text = "you typed " + data.get())
+
+#    for line in lumo_chat_manager.chat(message = data.get()):
+#         emptyLabel.config(text = line)
+#         print(line)
+    #emptyLabel.config(text = """Ive got a river running right into you I've got a blood trail, red in the blue Something you say or something you do. A taste of the divine. Youve got my body, flesh and bone, yeah. The sky above, the Earth below. Raise me up again. Take me past the edge. I want to see the other side See the other side""")
+    #emptyLabel.config(text = "pizza")
+
+    for line in lumo_chat_manager.chat(message = data.get()):
+        text.tag_configure("center", justify='left')
+        text.delete('1.0', tk.END)
+        text.insert(tk.INSERT, line)
+        #text.insert(tk.INSERT, """Ive got a river running right into you I've got a blood trail, red in the blue Something you say or something you do. A taste of the divine. Youve got my body, flesh and bone, yeah. The sky above, the Earth below. Raise me up again. Take me past the edge. I want to see the other side See the other side""")
+        text.tag_add("center", 1.0, "end")
+        text.place(x = 50, y = 250)
+    #print(datetime.now().strftime("%a %Y %m %d %H %M %S"))
+    
+
+    
 
 def home_page():
     home_frame = tk.Frame(main_frame)
@@ -26,6 +42,10 @@ def home_page():
     #Header: "Welcome to LUMO"
     lb = tk.Label(home_frame, text = "Welcome to LUMO", font = ("Bold", 30))
     lb.pack()
+
+    #Label: Current date and time
+    dateTime = tk.Label(main_frame, text = datetime.now().strftime("%a %m/%d/%Y\n%H:%M:%S"), font = ("Bod", 18))
+    dateTime.place(x = 10, y = 10)
 
     #Button: "Talk to LUMO", goes to talk options page
     talkMenuNew_btn = tk.Button(main_frame, text = "Talk to LUMO", font = ("Bold", 15), fg = "#158aff", bd = 0,
@@ -121,15 +141,19 @@ def text_prompt_page():
     #Textbox: takes in requests from user
     textBox = tk.Entry(main_frame, textvariable = data)
     #textBox = tk.Text(main_frame, height = 3, font = ("Arial", 16))
-    textBox.place(x = 50, y = 150, width = 400, height = 50)
+    textBox.place(x = 50, y = 150, width = 800, height = 50)
 
     #Button: Enter
     enter_btn = tk.Button(main_frame, text = "Enter", command = get_user_text)
     enter_btn.place(x = 50, y = 200, width = 50, height = 20)
 
-    global emptyLabel
-    emptyLabel = tk.Label(main_frame)
-    emptyLabel.place(x = 50, y = 250, width = 400, height = 15)
+    # global emptyLabel
+    # emptyLabel = tk.Label(main_frame, bg = "#c3c3c3")
+    # emptyLabel.place(x = 50, y = 250, width = 800, height = 100)
+
+    #Response Box
+    global text
+    text = tk.Text(main_frame, width = 100, height = 6)
 
     #Button: "Talk to LUMO through Voice, goes to voice prompt page"
     talkVoice_btn = tk.Button(main_frame, text = "Talk to LUMO through Voice", font = ("Bold", 15), fg = "#158aff", bd = 0,
@@ -140,31 +164,14 @@ def text_prompt_page():
 
     textPrompt_frame.pack(pady = 20)
 
-def menu_page():
-    menu_frame = tk.Frame(main_frame)
-
-    lb = tk.Label(menu_frame, text = "Menu Page", font = ("Bold", 30))
-    lb.pack()
-
-    menu_frame.pack(pady = 20)
-
-def settings_page():
-    settings_frame = tk.Frame(main_frame)
-
-    lb = tk.Label(settings_frame, text = "Settings Page", font = ("Bold", 30))
-    lb.pack()
-
-    settings_frame.pack(pady = 20)
-
 def delete_pages():
     for frame in main_frame.winfo_children():
         frame.destroy()
 
-#def hide_indicators():
-    #home_indicate.config(bg = "#c3c3c3")
-    #talkMenu_indicate.config(bg = "#c3c3c3")
-    #menu_indicate.config(bg = "#c3c3c3")
-    #settings_indicate.config(bg = "#c3c3c3")
+def update_date_time():
+    currentDateTime = datetime.now().strftime("%a %m/%d/%Y\n%H:%M:%S")
+    dateTime = tk.Label(main_frame, text = currentDateTime, font = ("Bod", 18))
+    dateTime.place(x = 10, y = 10)
 
 def indicate(lb, page):
     #hide_indicators()
@@ -178,9 +185,14 @@ main_frame = tk.Frame(root)
 lb = tk.Label(main_frame, text = "Welcome to LUMO", font = ("Bod", 30))
 lb.pack()
 
+#Label: Current date and time
+#global dateTime
+#global currentDateTime
+
+
 main_frame.pack(side = tk.LEFT)
 main_frame.pack_propagate(False)
-main_frame.configure(height = 400, width = 500)
+main_frame.configure(height = 10000, width = 10000)
 
 #Button: "Talk to LUMO", goes to talk options page
 talkMenu_btn = tk.Button(main_frame, text = "Talk to LUMO", font = ("Bold", 15), fg = "#158aff", bd = 0,
@@ -189,27 +201,6 @@ talkMenu_btn.place(x = 175, y = 200)
 talkMenu_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
 talkMenu_indicate.place(x = 3, y = 50, width = 5, height = 40)
 
-
-
-
-
-
-#home_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-'''
-menu_btn = tk.Button(main_frame, text = "Menu", font = ("Bold", 15), fg = "#158aff", bd = 0,
-                     command = lambda: indicate(menu_indicate, menu_page))
-menu_btn.place(x = 10, y = 100)
-menu_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-menu_indicate.place(x = 3, y = 100, width = 5, height = 40)
-
-settings_btn = tk.Button(main_frame, text = "Settings", font = ("Bold", 15), fg = "#158aff", bd = 0,
-                         command = lambda: indicate(settings_indicate, settings_page))
-settings_btn.place(x = 10, y = 150)
-settings_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-settings_indicate.place(x = 3, y = 150, width = 5, height = 40)
-'''
-#options_frame.pack(side = tk.LEFT)
-#options_frame.pack_propagate(False)
-#options_frame.configure(width = 500, height = 400)
+update_date_time()
 
 root.mainloop()
