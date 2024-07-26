@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 #from tkinter import * 
 #from tkinter.ttk import *
 from datetime import datetime
+from functions.new_assistant_function import get_weather
 from new_server_architecture.lumo_chat_management import LumoChatManager
 
 with open("./files/gpt_prompts/commands.yaml", "r", encoding="utf8") as commands:
@@ -15,8 +16,21 @@ with open("./files/gpt_prompts/commands.yaml", "r", encoding="utf8") as commands
         ])
 
 root = tk.Tk()
-root.geometry('1000x400')
+root.geometry('1000x600')
 root.title("Page Testing")
+
+def get_user_voice(voiceInput: str, role: str):
+    #Will display user's side of convo\ersation history on a column
+    if (role == "user"):
+        pass # will implement later
+    if (role == "assistant"):
+        text.tag_configure("center", justify='left')
+        text.delete('1.0', tk.END)
+        text.insert(tk.INSERT, voiceInput)
+        #text.insert(tk.INSERT, """Ive got a river running right into you I've got a blood trail, red in the blue Something you say or something you do. A taste of the divine. Youve got my body, flesh and bone, yeah. The sky above, the Earth below. Raise me up again. Take me past the edge. I want to see the other side See the other side""")
+        text.tag_add("center", 1.0, "end")
+        text.place(x = 50, y = 250)
+
 
 def get_user_text():
    #print(textVariable)
@@ -57,6 +71,8 @@ def home_page():
     talkMenuNew_btn.place(x = 175, y = 200)
     talkMenuNew_indicate = tk.Label(home_frame, text = "", bg = "#c3c3c3")
     talkMenuNew_indicate.place(x = 3, y = 50, width = 5, height = 40)
+
+    update_weather()
 
     home_frame.pack(pady = 20)
 
@@ -116,11 +132,11 @@ def voice_prompt_page():
     #Button: "Talk to LUMO through Text", goes to text prompt page
     talkText_btn = tk.Button(main_frame, text = "Talk to LUMO through Text", image = talkLumoTextIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
                              command = lambda: indicate(talkText_indicate, text_prompt_page))
-    talkText_btn.place(x = 125, y = 300)
+    talkText_btn.place(x = 125, y = 400)
     talkText_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
     talkText_indicate.place(x = 3, y = 50, width = 5, height = 40)
 
-    voicePrompt_frame.pack(pady = 20)    
+    voicePrompt_frame.pack(pady = 20)  
 
 def text_prompt_page():
     textPrompt_frame = tk.Frame(main_frame)
@@ -163,7 +179,7 @@ def text_prompt_page():
     #Button: "Talk to LUMO through Voice, goes to voice prompt page"
     talkVoice_btn = tk.Button(main_frame, text = "Talk to LUMO through Voice", image = talkLumoVoiceIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
                               command = lambda: indicate(talkVoice_indicate, voice_prompt_page))
-    talkVoice_btn.place(x = 125, y = 300)
+    talkVoice_btn.place(x = 125, y = 400)
     talkVoice_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
     talkVoice_indicate.place(x = 3, y = 50, width = 5, height = 40)
 
@@ -178,6 +194,20 @@ def update_date_time():
     dateTime = tk.Label(main_frame, text = currentDateTime, font = ("Bod", 18))
     dateTime.place(x = 830, y = 10)
     main_frame.after(1000, update_date_time)
+
+def update_weather():
+    currentWeather = get_weather()
+    for (day, weather) in currentWeather["daily"].items():
+        print(day)
+        print(weather)
+        if (day == "Today"):
+            weatherData = tk.Label(main_frame, text = str(weather["temp"]) + "° F\n" 
+                                   + "High: " + str(weather["high"]) + "° F\n"
+                                   + "Low: " + str(weather["low"]) + "° F\n" 
+                                   + str(weather["weather"]), font = ("Bod", 18))
+            weatherData.place(x = 500, y = 100)
+            main_frame.after(1_800_000, update_weather)
+    
 
 def indicate(lb, page):
     #hide_indicators()
@@ -223,5 +253,6 @@ talkMenu_indicate.place(x = 3, y = 50, width = 5, height = 40)
 #tk.Button(main_frame, text = 'Click Me !', image = homeButtonIcon).pack(side = TOP)
 
 update_date_time()
+update_weather()
 
 root.mainloop()
