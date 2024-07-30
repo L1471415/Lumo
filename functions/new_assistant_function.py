@@ -2,16 +2,18 @@
 
 from datetime import datetime
 import calendar
+import sys
 
 import requests
 
 import pytz
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
+sys.path.append(r"C:\Users\David\Desktop") #Change David to your username
+
+from config_variables import api_credentials, measurement_units 
 
 import wikipedia
-
-from config.config_variables import api_credentials, measurement_units
 
 geocoder = Nominatim(user_agent="lumo_voice_assistant")
 tf = TimezoneFinder()

@@ -5,7 +5,7 @@ import copy
 import ollama
 from openai import OpenAI
 
-from config.config_variables import api_credentials
+from config_variables import api_credentials
 
 class ChatHistory:
     '''Class which stores chat history for each user
