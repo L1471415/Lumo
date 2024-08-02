@@ -16,7 +16,7 @@ with open("./files/gpt_prompts/commands.yaml", "r", encoding="utf8") as commands
         ])
 
 root = tk.Tk()
-root.geometry('1000x600')
+root.geometry('1200x600')
 root.title("Page Testing")
 
 def get_user_voice(voiceInput: str, role: str):
@@ -24,46 +24,32 @@ def get_user_voice(voiceInput: str, role: str):
     if (role == "user"):
         pass # will implement later
     if (role == "assistant"):
-        text.tag_configure("center", justify='left')
-        text.delete('1.0', tk.END)
-        text.insert(tk.INSERT, voiceInput)
+        responseBox.tag_configure("center", justify='left')
+        responseBox.delete('1.0', tk.END)
+        responseBox.insert(tk.INSERT, voiceInput)
         #text.insert(tk.INSERT, """Ive got a river running right into you I've got a blood trail, red in the blue Something you say or something you do. A taste of the divine. Youve got my body, flesh and bone, yeah. The sky above, the Earth below. Raise me up again. Take me past the edge. I want to see the other side See the other side""")
-        text.tag_add("center", 1.0, "end")
-        text.place(x = 50, y = 250)
-
+        responseBox.tag_add("center", 1.0, "end")
+        responseBox.place(x = 50, y = 250)
 
 def get_user_text():
-   #print(textVariable)
-   #emptyLabel.config(text = "you typed " + data.get())
-
-#    for line in lumo_chat_manager.chat(message = data.get()):
-#         emptyLabel.config(text = line)
-#         print(line)
-    #emptyLabel.config(text = """Ive got a river running right into you I've got a blood trail, red in the blue Something you say or something you do. A taste of the divine. Youve got my body, flesh and bone, yeah. The sky above, the Earth below. Raise me up again. Take me past the edge. I want to see the other side See the other side""")
-    #emptyLabel.config(text = "pizza")
-
+    historyBox.insert(tk.INSERT, "User: " + data.get() + "\n\nLumo: ")
     for line in lumo_chat_manager.chat(message = data.get()):
-        text.tag_configure("center", justify='left')
-        text.delete('1.0', tk.END)
-        text.insert(tk.INSERT, line)
-        #text.insert(tk.INSERT, """Ive got a river running right into you I've got a blood trail, red in the blue Something you say or something you do. A taste of the divine. Youve got my body, flesh and bone, yeah. The sky above, the Earth below. Raise me up again. Take me past the edge. I want to see the other side See the other side""")
-        text.tag_add("center", 1.0, "end")
-        text.place(x = 50, y = 250)
-    #print(datetime.now().strftime("%a %Y %m %d %H %M %S"))
-    
+        responseBox.tag_configure("center", justify='left')
+        responseBox.delete('1.0', tk.END)
+        responseBox.insert(tk.INSERT, line)
+        responseBox.tag_add("center", 1.0, "end")
+        responseBox.place(x = 50, y = 250)
 
+        historyBox.tag_configure("center", justify='left')
+        historyBox.insert(tk.INSERT, line + "\n----------\n")
+        historyBox.tag_add("center", 1.0, "end")
     
-
 def home_page():
     home_frame = tk.Frame(main_frame)
 
     #Header: "Welcome to LUMO"
     lb = tk.Label(home_frame, text = "Welcome to LUMO", font = ("Bold", 30))
     lb.pack()
-
-    #Label: Current date and time
-    #dateTime = tk.Label(main_frame, text = datetime.now().strftime("%a %m/%d/%Y\n%H:%M:%S"), font = ("Bod", 18))
-    #dateTime.place(x = 10, y = 10)
 
     #Button: "Talk to LUMO", goes to talk options page
     talkMenuNew_btn = tk.Button(main_frame, text = "Talk to LUMO", image = talkToLumoButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
@@ -160,21 +146,25 @@ def text_prompt_page():
     data = tk.StringVar() # Holds user input text
 
     #Textbox: takes in requests from user
-    textBox = tk.Entry(main_frame, textvariable = data)
-    #textBox = tk.Text(main_frame, height = 3, font = ("Arial", 16))
-    textBox.place(x = 50, y = 150, width = 800, height = 50)
+    inputBox = tk.Entry(main_frame, textvariable = data)
+    inputBox.place(x = 50, y = 150, width = 800, height = 50)
 
     #Button: Enter
     enter_btn = tk.Button(main_frame, text = "Enter", command = get_user_text)
     enter_btn.place(x = 50, y = 200, width = 50, height = 20)
 
-    # global emptyLabel
-    # emptyLabel = tk.Label(main_frame, bg = "#c3c3c3")
-    # emptyLabel.place(x = 50, y = 250, width = 800, height = 100)
-
     #Response Box
-    global text
-    text = tk.Text(main_frame, width = 100, height = 6)
+    global responseBox
+    responseBox = tk.Text(main_frame, width = 100, height = 6)
+
+    #Label: "History"
+    historyLabel = tk.Label(main_frame, text = "History", font = ("Bold", 20))
+    historyLabel.place(x = 980, y = 90)
+    
+    #History Box
+    global historyBox
+    historyBox = tk.Text(main_frame, width = 32, height = 25)
+    historyBox.place(x = 895, y = 130)
 
     #Button: "Talk to LUMO through Voice, goes to voice prompt page"
     talkVoice_btn = tk.Button(main_frame, text = "Talk to LUMO through Voice", image = talkLumoVoiceIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
@@ -190,12 +180,14 @@ def delete_pages():
         frame.destroy()
 
 def update_date_time():
+    #Label: current date/time
     currentDateTime = datetime.now().strftime("%a %m/%d/%Y\n%H:%M:%S")
     dateTime = tk.Label(main_frame, text = currentDateTime, font = ("Bod", 18))
-    dateTime.place(x = 830, y = 10)
+    dateTime.place(x = 1020, y = 10)
     main_frame.after(1000, update_date_time)
 
 def update_weather():
+    #Label: current weather
     currentWeather = get_weather()
     for (day, weather) in currentWeather["daily"].items():
         print(day)
@@ -203,9 +195,8 @@ def update_weather():
         if (day == "Today"):
             weatherData = tk.Label(main_frame, text = str(weather["temp"]) + "° F\n" 
                                    + "High: " + str(weather["high"]) + "° F\n"
-                                   + "Low: " + str(weather["low"]) + "° F\n" 
-                                   + str(weather["weather"]), font = ("Bod", 18))
-            weatherData.place(x = 500, y = 100)
+                                   + "Low: " + str(weather["low"]) + "° F" , font = ("Bod", 18))
+            weatherData.place(x = 1030, y = 100)
             main_frame.after(1_800_000, update_weather)
     
 
@@ -231,11 +222,6 @@ main_frame = tk.Frame(root)
 lb = tk.Label(main_frame, text = "Welcome to LUMO", font = ("Bod", 30))
 lb.pack()
 
-#Label: Current date and time
-#global dateTime
-#global currentDateTime
-
-
 main_frame.pack(side = tk.LEFT)
 main_frame.pack_propagate(False)
 main_frame.configure(height = 10000, width = 10000)
@@ -243,16 +229,14 @@ main_frame.configure(height = 10000, width = 10000)
 #Button: "Talk to LUMO", goes to talk options page
 talkMenu_btn = tk.Button(main_frame, text = "Talk to LUMO", image = talkToLumoButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
                      command = lambda: indicate(talkMenu_indicate, talk_options_page))
-#talkMenu_btn.config(width = 100, height = 50)
 talkMenu_btn.place(x = 175, y = 200)
 talkMenu_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
 talkMenu_indicate.place(x = 3, y = 50, width = 5, height = 40)
-  
-# here, image option is used to 
-# set image on button 
-#tk.Button(main_frame, text = 'Click Me !', image = homeButtonIcon).pack(side = TOP)
 
+#Updates date/time display
 update_date_time()
+
+#Updates weather display
 update_weather()
 
 root.mainloop()
