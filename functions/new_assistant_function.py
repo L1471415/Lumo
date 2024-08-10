@@ -9,7 +9,7 @@ import requests
 import pytz
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
-sys.path.append(r"C:\Users\David\Desktop") #Change David to your username
+sys.path.append(r"C:\Users\David\Desktop") #Change Path to wherever you have the API credentials stored
 
 from config_variables import api_credentials, measurement_units 
 

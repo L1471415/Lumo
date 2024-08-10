@@ -1,8 +1,5 @@
 import tkinter as tk
-#from tkinter import Tk, Label
 from PIL import Image, ImageTk
-#from tkinter import * 
-#from tkinter.ttk import *
 from datetime import datetime
 from functions.new_assistant_function import get_weather
 from new_server_architecture.lumo_chat_management import LumoChatManager
@@ -20,7 +17,7 @@ root.geometry('1200x600')
 root.title("Page Testing")
 
 def get_user_voice(voiceInput: str, role: str):
-    #Will display user's side of convo\ersation history on a column
+    #Will display user's side of conversation history on a column
     if (role == "user"):
         pass # will implement later
     if (role == "assistant"):
@@ -31,153 +28,25 @@ def get_user_voice(voiceInput: str, role: str):
         responseBox.tag_add("center", 1.0, "end")
         responseBox.place(x = 50, y = 250)
 
-def get_user_text():
-    historyBox.insert(tk.INSERT, "User: " + data.get() + "\n\nLumo: ")
+def read_user_text():
+    #Insert user input and headers into history box
+    historyBox.insert(tk.INSERT, "----------\n\nUser: " + data.get() + "\n\nLumo: ")
+
+    #Delete previous Lumo response from response box
     for line in lumo_chat_manager.chat(message = data.get()):
-        responseBox.tag_configure("center", justify='left')
         responseBox.delete('1.0', tk.END)
-        responseBox.insert(tk.INSERT, line)
+
+    for line in lumo_chat_manager.chat(message = data.get()):
+        #Fetch and display current line of Lumo response
+        responseBox.tag_configure("center", justify='left')
+        responseBox.insert(tk.INSERT, line + "\n\n")
         responseBox.tag_add("center", 1.0, "end")
         responseBox.place(x = 50, y = 250)
 
+        #Add current line of Lumo response to history box
         historyBox.tag_configure("center", justify='left')
-        historyBox.insert(tk.INSERT, line + "\n----------\n")
+        historyBox.insert(tk.INSERT, line + "\n\n")
         historyBox.tag_add("center", 1.0, "end")
-    
-def home_page():
-    home_frame = tk.Frame(main_frame)
-
-    #Header: "Welcome to LUMO"
-    lb = tk.Label(home_frame, text = "Welcome to LUMO", font = ("Bold", 30))
-    lb.pack()
-
-    #Button: "Talk to LUMO", goes to talk options page
-    talkMenuNew_btn = tk.Button(main_frame, text = "Talk to LUMO", image = talkToLumoButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                        command = lambda: indicate(talkMenuNew_indicate, talk_options_page))
-    talkMenuNew_btn.place(x = 175, y = 200)
-    talkMenuNew_indicate = tk.Label(home_frame, text = "", bg = "#c3c3c3")
-    talkMenuNew_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    update_weather()
-
-    home_frame.pack(pady = 20)
-
-def talk_options_page():
-    talkOptions_frame = tk.Frame(main_frame)
-
-    #Header: "How do you want to talk to LUMO?"
-    lb = tk.Label(talkOptions_frame, text = "How do you want to talk to LUMO?", font = ("Bold", 20))
-    lb.pack()
-
-    #Button: "Talk to LUMO through Voice, goes to voice prompt page"
-    talkVoice_btn = tk.Button(main_frame, text = "Talk to LUMO through Voice", image = talkLumoVoiceIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                              command = lambda: indicate(talkVoice_indicate, voice_prompt_page))
-    talkVoice_btn.place(x = 125, y = 150)
-    talkVoice_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-    talkVoice_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    #Button: "Talk to LUMO through Text", goes to text prompt page
-    talkText_btn = tk.Button(main_frame, text = "Talk to LUMO through Text", image = talkLumoTextIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                             command = lambda: indicate(talkText_indicate, text_prompt_page))
-    talkText_btn.place(x = 125, y = 250)
-    talkText_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-    talkText_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    #Button: "Home", goes to home page
-    home_btn = tk.Button(main_frame, text = "Home", image = homeButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                     command = lambda: indicate(home_indicate, home_page))
-    home_btn.place(x = 10, y = 10)
-    home_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-    home_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    talkOptions_frame.pack(pady = 20)
-    #img_label.pack()
-
-def voice_prompt_page():
-    voicePrompt_frame = tk.Frame(main_frame)
-    
-    #Header: "Hello, how can I help you today?"
-    lb = tk.Label(voicePrompt_frame, text = "Hello, how can I help you today?", font = ("Bold", 20))
-    lb.pack()
-
-    #Subheader: "Speak request"
-    subHeadLb = tk.Label(main_frame, text = "Speak request", font = ("Bold", 12))
-    subHeadLb.place(x = 200, y = 75)
-
-    #Button: "Home", goes to home page
-    home_btn = tk.Button(main_frame, text = "Home", image = homeButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                     command = lambda: indicate(home_indicate, home_page))
-    home_btn.place(x = 10, y = 10)
-    home_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-    home_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    #Textbox: takes in requests from user
-    textBox = tk.Text(main_frame, height = 3, font = ("Arial", 16))
-    textBox.place(x = 50, y = 150, width = 400, height = 50)
-
-    #Button: "Talk to LUMO through Text", goes to text prompt page
-    talkText_btn = tk.Button(main_frame, text = "Talk to LUMO through Text", image = talkLumoTextIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                             command = lambda: indicate(talkText_indicate, text_prompt_page))
-    talkText_btn.place(x = 125, y = 400)
-    talkText_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-    talkText_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    voicePrompt_frame.pack(pady = 20)  
-
-def text_prompt_page():
-    textPrompt_frame = tk.Frame(main_frame)
-
-    #Header: "Hello, how can I help you today?"
-    lb = tk.Label(textPrompt_frame, text = "Hello, how can I help you today?", font = ("Bold", 20))
-    lb.pack()
-
-    #Subheader: "Type request below"
-    subHeadLb = tk.Label(main_frame, text = "Type request below", font = ("Bold", 12))
-    subHeadLb.place(x = 175, y = 75)
-
-    #Button: "Home", goes to home page
-    home_btn = tk.Button(main_frame, text = "Home", image = homeButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                     command = lambda: indicate(home_indicate, home_page))
-    home_btn.place(x = 10, y = 10)
-    home_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-    home_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    global data
-    data = tk.StringVar() # Holds user input text
-
-    #Textbox: takes in requests from user
-    inputBox = tk.Entry(main_frame, textvariable = data)
-    inputBox.place(x = 50, y = 150, width = 800, height = 50)
-
-    #Button: Enter
-    enter_btn = tk.Button(main_frame, text = "Enter", command = get_user_text)
-    enter_btn.place(x = 50, y = 200, width = 50, height = 20)
-
-    #Response Box
-    global responseBox
-    responseBox = tk.Text(main_frame, width = 100, height = 6)
-
-    #Label: "History"
-    historyLabel = tk.Label(main_frame, text = "History", font = ("Bold", 20))
-    historyLabel.place(x = 980, y = 90)
-    
-    #History Box
-    global historyBox
-    historyBox = tk.Text(main_frame, width = 32, height = 25)
-    historyBox.place(x = 895, y = 130)
-
-    #Button: "Talk to LUMO through Voice, goes to voice prompt page"
-    talkVoice_btn = tk.Button(main_frame, text = "Talk to LUMO through Voice", image = talkLumoVoiceIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
-                              command = lambda: indicate(talkVoice_indicate, voice_prompt_page))
-    talkVoice_btn.place(x = 125, y = 400)
-    talkVoice_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-    talkVoice_indicate.place(x = 3, y = 50, width = 5, height = 40)
-
-    textPrompt_frame.pack(pady = 20)
-
-def delete_pages():
-    for frame in main_frame.winfo_children():
-        frame.destroy()
 
 def update_date_time():
     #Label: current date/time
@@ -199,9 +68,236 @@ def update_weather():
             weatherData.place(x = 1030, y = 100)
             main_frame.after(1_800_000, update_weather)
     
+def home_page():
+    home_frame = tk.Frame(main_frame)
+
+    #Header: "Welcome to LUMO"
+    lb = tk.Label(home_frame, text = "Welcome to LUMO", font = ("Bold", 30))
+    lb.pack()
+
+    #Button: "Talk to LUMO", goes to talk options page
+    talkMenuNew_btn = tk.Button(main_frame, text = "Talk to LUMO", image = talkToLumoButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                        command = lambda: indicate(talkMenuNew_indicate, talk_options_page))
+    talkMenuNew_btn.place(x = 175, y = 200)
+    talkMenuNew_indicate = tk.Label(home_frame)
+
+    #Button "Notes", goes to notes page
+    notes_btn = tk.Button(main_frame, text = "Notes", image = notesButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                        command = lambda: indicate(notes_indicate, notes_page))
+    notes_btn.place(x = 10, y = 10)
+    notes_indicate = tk.Label(main_frame)
+
+    update_weather()
+
+    home_frame.pack(pady = 20)
+
+def talk_options_page():
+    talkOptions_frame = tk.Frame(main_frame)
+
+    #Header: "How do you want to talk to LUMO?"
+    lb = tk.Label(talkOptions_frame, text = "How do you want to talk to LUMO?", font = ("Bold", 20))
+    lb.pack()
+
+    #Button: "Talk to LUMO through Voice, goes to voice prompt page"
+    talkVoice_btn = tk.Button(main_frame, text = "Talk to LUMO through Voice", image = talkLumoVoiceIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                              command = lambda: indicate(talkVoice_indicate, voice_prompt_page))
+    talkVoice_btn.place(x = 125, y = 150)
+    talkVoice_indicate = tk.Label(main_frame)
+
+    #Button: "Talk to LUMO through Text", goes to text prompt page
+    talkText_btn = tk.Button(main_frame, text = "Talk to LUMO through Text", image = talkLumoTextIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                             command = lambda: indicate(talkText_indicate, text_prompt_page))
+    talkText_btn.place(x = 125, y = 250)
+    talkText_indicate = tk.Label(main_frame)
+
+    #Button: "Home", goes to home page
+    home_btn = tk.Button(main_frame, text = "Home", image = homeButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                     command = lambda: indicate(home_indicate, home_page))
+    home_btn.place(x = 10, y = 10)
+    home_indicate = tk.Label(main_frame)
+
+    #Button "Notes", goes to notes page
+    notes_btn = tk.Button(main_frame, text = "Notes", image = notesButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                        command = lambda: indicate(notes_indicate, notes_page))
+    notes_btn.place(x = 65, y = 10)
+    notes_indicate = tk.Label(main_frame)
+
+    talkOptions_frame.pack(pady = 20)
+
+def voice_prompt_page():
+    voicePrompt_frame = tk.Frame(main_frame)
+    
+    #Header: "Hello, how can I help you today?"
+    lb = tk.Label(voicePrompt_frame, text = "Hello, how can I help you today?", font = ("Bold", 20))
+    lb.pack()
+
+    #Subheader: "Speak request"
+    subHeadLb = tk.Label(main_frame, text = "Speak request", font = ("Bold", 12))
+    subHeadLb.place(x = 200, y = 75)
+
+    #Button: "Home", goes to home page
+    home_btn = tk.Button(main_frame, text = "Home", image = homeButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                     command = lambda: indicate(home_indicate, home_page))
+    home_btn.place(x = 10, y = 10)
+    home_indicate = tk.Label(main_frame)
+
+    #Button "Notes", goes to notes page
+    notes_btn = tk.Button(main_frame, text = "Notes", image = notesButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                        command = lambda: indicate(notes_indicate, notes_page))
+    notes_btn.place(x = 65, y = 10)
+    notes_indicate = tk.Label(main_frame)
+
+    #Textbox: takes in requests from user
+    textBox = tk.Text(main_frame, height = 3, font = ("Arial", 16))
+    textBox.place(x = 50, y = 150, width = 400, height = 50)
+
+    #Button: "Talk to LUMO through Text", goes to text prompt page
+    talkText_btn = tk.Button(main_frame, text = "Talk to LUMO through Text", image = talkLumoTextIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                             command = lambda: indicate(talkText_indicate, text_prompt_page))
+    talkText_btn.place(x = 125, y = 400)
+    talkText_indicate = tk.Label(main_frame)
+
+    voicePrompt_frame.pack(pady = 20)  
+
+def text_prompt_page():
+    textPrompt_frame = tk.Frame(main_frame)
+
+    #Header: "Hello, how can I help you today?"
+    lb = tk.Label(textPrompt_frame, text = "Hello, how can I help you today?", font = ("Bold", 20))
+    lb.pack()
+
+    #Subheader: "Type request below"
+    subHeadLb = tk.Label(main_frame, text = "Type request below", font = ("Bold", 12))
+    subHeadLb.place(x = 175, y = 75)
+
+    #Button: "Home", goes to home page
+    home_btn = tk.Button(main_frame, text = "Home", image = homeButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                     command = lambda: indicate(home_indicate, home_page))
+    home_btn.place(x = 10, y = 10)
+    home_indicate = tk.Label(main_frame)
+
+    #Button "Notes", goes to notes page
+    notes_btn = tk.Button(main_frame, text = "Notes", image = notesButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                        command = lambda: indicate(notes_indicate, notes_page))
+    notes_btn.place(x = 65, y = 10)
+    notes_indicate = tk.Label(main_frame)    
+
+    global data
+    data = tk.StringVar() # Holds user input text
+
+    #Textbox: takes in requests from user
+    inputBox = tk.Entry(main_frame, textvariable = data)
+    inputBox.place(x = 50, y = 150, width = 800, height = 50)
+
+    #Button: Enter
+    enter_btn = tk.Button(main_frame, text = "Enter", command = read_user_text)
+    enter_btn.place(x = 50, y = 200, width = 50, height = 20)
+
+    #Response Box
+    global responseBox
+    responseBox = tk.Text(main_frame, width = 100, height = 6)
+
+    #Label: "History"
+    historyLabel = tk.Label(main_frame, text = "History", font = ("Bold", 20))
+    historyLabel.place(x = 980, y = 90)
+    
+    #History Box
+    global historyBox
+    historyBox = tk.Text(main_frame, width = 32, height = 25)
+    historyBox.place(x = 895, y = 130)
+
+    #Button: "Talk to LUMO through Voice, goes to voice prompt page"
+    talkVoice_btn = tk.Button(main_frame, text = "Talk to LUMO through Voice", image = talkLumoVoiceIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                              command = lambda: indicate(talkVoice_indicate, voice_prompt_page))
+    talkVoice_btn.place(x = 125, y = 400)
+    talkVoice_indicate = tk.Label(main_frame)
+
+    textPrompt_frame.pack(pady = 20)
+
+def save_text():
+   #path = r"saved_notes\\" + "noteContents.txt"
+   path = "noteContents.txt"
+   text_file = open(path, "w")
+   text_file.write(text.get(1.0, tk.END))
+   text_file.close()
+
+#    artist_list = next(os.walk("./music/music_library"))[1]
+        
+#         for artist in artist_list:
+
+def notes_page():
+    notes_frame = tk.Frame(main_frame)
+
+    #Header: "Notes"
+    notesHeader = tk.Label(notes_frame, text = "Notes", font = ("Bold", 20))
+    notesHeader.pack()
+
+    #Button: "Home", goes to home page
+    home_btn = tk.Button(main_frame, text = "Home", image = homeButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                     command = lambda: indicate(home_indicate, home_page))
+    home_btn.place(x = 10, y = 10)
+    home_indicate = tk.Label(main_frame)
+
+    global notesData
+    notesData = tk.StringVar() # Holds user input text
+
+    #Notes Box
+    #notesBox = tk.Entry(main_frame, textvariable = notesData)
+    #notesBox = tk.Text(main_frame)
+    #notesBox.place(x = 200, y = 100, width = 800, height = 400)
+
+    global text
+
+    text = tk.Text(main_frame, height = 16, width = 80) 
+    scroll = tk.Scrollbar(main_frame) 
+    text.configure(yscrollcommand = scroll.set) 
+    text.place(x = 400, y = 200) 
+  
+    scroll.config(command = text.yview) 
+    scroll.pack(side = tk.RIGHT, fill = tk.Y) 
+    
+    # insert_text = """GEEKSFORGEEKS : 
+    # A Computer Science portal for geeks. 
+    # It contains well written, well thought 
+    # and well explained computer science and 
+    # programming articles, quizzes and 
+    # many more. 
+    # GeeksforGeeks realises the importance of programming practice in the field of 
+    # Computer Science. 
+    # That is why, it also provides an option of practicing problems. 
+    # This huge database of problems is created by programming experts. 
+    # The active team of GeeksforGeeks makes the learning process 
+    # interesting and fun. 
+    # """
+    
+    # text.insert(tk.END, insert_text)
+
+#     def open_text():
+    text_file = open("noteContents.txt", "r")
+    content = text_file.read()
+    text.insert(tk.END, content)
+    text_file.close()
+
+
+
+# # Creating a text box widget
+# my_text_box = Text(win, height=10, width=40)
+# my_text_box.pack()
+
+# open_btn = Button(win, text="Open Text File", command=open_text)
+# open_btn.pack()
+
+    # Create a button to save the text
+    save = tk.Button(main_frame, text="Save File", command=save_text)
+    save.place(x = 50, y = 50)
+
+    notes_frame.pack(pady = 20)
+
+def delete_pages():
+    for frame in main_frame.winfo_children():
+        frame.destroy()
 
 def indicate(lb, page):
-    #hide_indicators()
     lb.config(bg = "#158aff")
     delete_pages()
     page()
@@ -215,6 +311,8 @@ global talkLumoVoiceIcon
 talkLumoVoiceIcon = ImageTk.PhotoImage(Image.open("talkLumoVoiceIcon.png").resize((225, 75)))
 global talkLumoTextIcon
 talkLumoTextIcon = ImageTk.PhotoImage(Image.open("talkLumoTextIcon.png").resize((225, 75)))
+global notesButtonIcon
+notesButtonIcon = ImageTk.PhotoImage(Image.open("notesButtonIcon.png").resize((35, 45)))
 
 main_frame = tk.Frame(root)
 
@@ -230,8 +328,13 @@ main_frame.configure(height = 10000, width = 10000)
 talkMenu_btn = tk.Button(main_frame, text = "Talk to LUMO", image = talkToLumoButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
                      command = lambda: indicate(talkMenu_indicate, talk_options_page))
 talkMenu_btn.place(x = 175, y = 200)
-talkMenu_indicate = tk.Label(main_frame, text = "", bg = "#c3c3c3")
-talkMenu_indicate.place(x = 3, y = 50, width = 5, height = 40)
+talkMenu_indicate = tk.Label(main_frame)
+
+#Button "Notes", goes to notes page
+notes_btn = tk.Button(main_frame, text = "Notes", image = notesButtonIcon, font = ("Bold", 15), fg = "#158aff", bd = 0,
+                     command = lambda: indicate(notes_indicate, notes_page))
+notes_btn.place(x = 10, y = 10)
+notes_indicate = tk.Label(main_frame)
 
 #Updates date/time display
 update_date_time()
