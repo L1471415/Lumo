@@ -333,7 +333,7 @@
         },
         "example": [
             {"user": "Can you record that there are 50 states in the USA to my notes?"},
-            {"assistant": "Sure thing. \n generate_text_document notes False \"there are 50 states in the USA\""}
+            {"assistant": "Sure thing. \n generate_text_document notes False \"there are 50 states in the USA\""},
             {"user": "Can you also write down everything I say in this sentence?"},
             {"assistant": "Sure thing. \n generate_text_document notes True \"\""}
         ]

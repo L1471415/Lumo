@@ -2,6 +2,7 @@ import torch
 import subprocess
 from pyannote.audio.pipelines.speaker_verification import PretrainedSpeakerEmbedding
 import config.config_variables as cv
+import time
 
 import mutagen 
 from mutagen.wave import WAVE 
@@ -41,24 +42,26 @@ def speaker_verify(audio_file1, audio_file2, aud1_start, aud1_end, aud2_start, a
     return distance
 """
 
+import random
+
+import numpy as np
+
+from deep_speaker.audio import read_mfcc
+from deep_speaker.batcher import sample_from_mfcc
+from deep_speaker.constants import SAMPLE_RATE, NUM_FRAMES
+from deep_speaker.conv_models import DeepSpeakerModel
+from deep_speaker.test import batch_cosine_similarity
+
+np.random.seed(123)
+random.seed(123)
+
+model2 = DeepSpeakerModel()
+model2.m.load_weights('ResCNN_triplet_training_checkpoint_265.h5', by_name=True)
+
+
 def speaker_verify_2_0(filepath_1, filepath_2):
-    import random
-
-    import numpy as np
-
-    from deep_speaker.audio import read_mfcc
-    from deep_speaker.batcher import sample_from_mfcc
-    from deep_speaker.constants import SAMPLE_RATE, NUM_FRAMES
-    from deep_speaker.conv_models import DeepSpeakerModel
-    from deep_speaker.test import batch_cosine_similarity
-
     # Reproducible results.
-    np.random.seed(123)
-    random.seed(123)
-
-    model2 = DeepSpeakerModel()
-
-    model2.m.load_weights('ResCNN_triplet_training_checkpoint_265.h5', by_name=True)
+   
 
     mfcc_001 = sample_from_mfcc(read_mfcc(filepath_1, SAMPLE_RATE), NUM_FRAMES)
     mfcc_002 = sample_from_mfcc(read_mfcc(filepath_2, SAMPLE_RATE), NUM_FRAMES)
@@ -72,11 +75,18 @@ def speaker_verify_2_0(filepath_1, filepath_2):
 
 def main():
     #TESTING PURPOSES ONLY
-    t = audio_file_length("./saved_voices/saved_voice_3.wav")
-    r = audio_file_length("./saved_voices/saved_voice_5.wav")
-    print(t, " " ,r)
+    # t = audio_file_length("./saved_voices/saved_voice_3.wav")
+    # r = audio_file_length("./saved_voices/saved_voice_5.wav")
+    # print(t, " " ,r)
+    start_time = time.time_ns()
+    print(speaker_verify_2_0("./Test Data/compressed/DID YOU BREAK YOUR LEGS.wav", "./Test Data/compressed/jerma_schizo.wav"))
 
-    print(speaker_verify_2_0("./saved_voices/saved_voice_3.wav", "./saved_voices/saved_voice_5.wav"))
+    print(time.time_ns() - start_time)
+
+    start_time = time.time_ns()
+    print(speaker_verify_2_0("./Test Data/compressed/DID YOU BREAK YOUR LEGS.wav", "./Test Data/compressed/jerma_schizo.wav"))
+
+    print(time.time_ns() - start_time)
 
 if __name__ == "__main__":
     main()
