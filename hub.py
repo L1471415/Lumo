@@ -19,7 +19,7 @@ import audio.speaker_verify as sv
 def stable_hash(text:str):
     hash=0
     for ch in text:
-        hash = ( hash*281  ^ ord(ch)*997) & 0xFFFFFFFF
+        hash = (hash*281 ^ ord(ch)*997) & 0xFFFFFFFF
     return hash
 
 class Server:
@@ -28,7 +28,7 @@ class Server:
         self.app = Flask(__name__)
 
         self.port = port
-
+        
         # Format is {"room_name": "ip"}
         self.device_list = {}
         

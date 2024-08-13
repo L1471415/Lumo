@@ -2,18 +2,24 @@ get_weather:
   args:
     - location (optional)
   effect:
-    - gives short weather forecast as json system prompt
+    - gives short weather forecast as a system prompt. If no location is provided the current user's location is used, otherwise the weather at the provided location is fetched
 
 get_time:
   args:
-    - location (required)
+    - location (optional)
   effect:
-    - gives the current time in the specified location as a system prompt
+    - gives the current time in the specified location as a system prompt. If no location is provided the user's current location is used, otherwise the time at the provided location is fetched
+
+search_wikipedia:
+  args:
+    - query (required)
+  effect:
+    - searches wikipedia for the given query, and returns the summary of the best matching article
 
 toggle_lights:
   args:
-    - room_name (required)
+    - room_name
     - state (optional): ["on", "off"]
     - color (optional): "#RRGGBB"
   effect:
-    - turns the light to state (on/off) if provided, and to color (hex code) if provided
+    - turns the light to state (on/off) if provided, and to color (hex code) if provided. If no room is provided the user's current room is used by default

@@ -2,7 +2,10 @@ elevenlabs @ git+https://github.com/elevenlabs/elevenlabs-python.git@ecd541cad2a
 openai @ git+https://github.com/openai/openai-python.git@e41abf7b7dbc1e744d167f748e55d4dedfc0dca7
 python-kasa @ git+https://github.com/python-kasa/python-kasa.git@063518b7dba8e9f58e915607a64ba506d83e8aed
 deep-speaker @ git+https://github.com/philipperemy/deep-speaker.git@76d91dd3f30895690ca295e4c47c6629b4292533
-tensorflow
+ollama
+faster-whisper
+sanic
+tensorflow==2.15
 openwakeword
 torch
 torchaudio

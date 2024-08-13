@@ -50,7 +50,7 @@ def get_time(location:str) -> dict:
     }
 
 
-def get_weather(location:str) -> dict:
+def get_weather(location:str=None) -> dict:
     '''Method to find the weather forecast at a given location
 
         Parameters:
@@ -72,19 +72,9 @@ def get_weather(location:str) -> dict:
 
     weather_forecast = _get_forecast_by_coordinates(geolocated_location.latitude, geolocated_location.longitude)
 
-    formatted_weather = (
-        f"location: {geolocated_location.address}\n"
-        "daily:\n"
-    )
+    weather_forecast["location"] = geolocated_location.address
 
-    for (day, data) in weather_forecast["daily"].items():
-        formatted_weather += f"\n  {day}:\n"
-        formatted_weather += f"    Avg - {data['temp']}\n"
-        formatted_weather += f"    High - {data['high']}\n"
-        formatted_weather += f"    Low - {data['low']}\n"
-        formatted_weather += f"    Forecast - {data['weather']}\n"
-
-    return formatted_weather
+    return weather_forecast
 
 
 def _get_forecast_by_coordinates(latitude:float, longitude:float) -> dict:

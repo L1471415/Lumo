@@ -1,16 +1,16 @@
-from datetime import datetime, timedelta
-from playsound import playsound
+from datetime import datetime
+from base64 import b64decode
+import json
+
 import pytz
 from geopy.geocoders import Nominatim
 from timezonefinder import TimezoneFinder
 import requests
 from openai import OpenAI
-from base64 import b64decode
-from PIL import Image
 import wikipedia
-import json
+from playsound import playsound
 
-from config.config_variables import api_credentials, contacts, measurement_units, latitude, longitude
+from config.config_variables import api_credentials, measurement_units, latitude, longitude
 import functions.alarm as alarm
 
 openai = OpenAI(api_key=api_credentials["openai"]["key"])
@@ -231,10 +231,10 @@ def find_nearby_locations(location_type, location=None):
             if not "opening_hours" in open_hours.keys():
                 continue
 
-            locations += f"{place['name']}: "  
+            locations += f"{place['name']}: "
 
             if not open_hours["opening_hours"]["open_now"]:
-                if not "Closed" in open_hours['opening_hours']['weekday_text'][(weekday+1)%7]: 
+                if not "Closed" in open_hours['opening_hours']['weekday_text'][(weekday+1)%7]:
                     locations += f"Open tomorrow from {open_hours['opening_hours']['weekday_text'][(weekday+1)%7].split(': ')[1]}"
                 else:
                     for i in range(len(open_hours['opening_hours']['weekday_text'])):

@@ -2,13 +2,15 @@
 
 import time
 import copy
-import ollama
-from openai import OpenAI
 import json
 
-from config.config_variables import api_credentials
+import ollama
+from openai import OpenAI
 
+from config.config_variables import api_credentials
 import new_assistant_functions
+
+from user_profile import UserProfile
 
 
 class ChatHistory:
@@ -25,24 +27,24 @@ class ChatHistory:
 
         self._max_history_length = history_length
 
-    def append(self, message:dict, user:str=None):
+    def append(self, message:dict, user_id:str):
         '''Add a message to the chat history of the user,
             automatically shrinking history length to the max size
 
             Parameters:
                 message (dict): A dict containing role and content
-                user (str): The name of the user to save the chat history for
+                user_id (str): The id of the user to save the chat history for
 
             Returns: None
         '''
 
-        if user not in self._chat_history:
-            self._chat_history[user] = copy.deepcopy(self._initial_prompts)
+        if user_id not in self._chat_history:
+            self._chat_history[user_id] = copy.deepcopy(self._initial_prompts)
 
-        self._chat_history[user].append(message)
+        self._chat_history[user_id].append(message)
 
-        while len(self._chat_history[user]) > self._max_history_length:
-            del self._chat_history[user][len(self._initial_prompts)]
+        while len(self._chat_history[user_id]) > self._max_history_length:
+            del self._chat_history[user_id][len(self._initial_prompts)]
 
     def __getitem__(self, user):
         return self._chat_history[user]
@@ -57,32 +59,35 @@ class LumoChatManager:
         if model_name == "gpt-3.5":
             self._openai = OpenAI(api_key=api_credentials["openai"]["key"])
 
-    def chat(self, message:str, user=None):
+    def chat(self, message:str, user:UserProfile):
         '''Function to send a chat message to the voice assistant
 
             Parameters:
                 message (str): The message to send to the LLM
-                user (str): The name of the user the LLM is chatting with
+                user (UserProfile): The profile of the user the LLM is chatting with
 
             Returns:
                 Iterator of responses the voice assistant should read out (str)
         '''
 
+        if not isinstance(user, UserProfile):
+            raise TypeError("user is not a UserProfile object!")
+
         user_message = self._format_user_message(message, user)
 
-        self._chat_history.append(user_message, user)
+        self._chat_history.append(user_message, user.user_id)
 
         should_prompt_llm = True
 
         while should_prompt_llm:
             should_prompt_llm = False
 
-            for _line in self._get_llm_response(self._chat_history[user], self._model_name):
+            for _line in self._get_llm_response(self._chat_history[user.user_id], self._model_name):
                 # If the line has no content, ignore it
                 if not _line or len(_line.strip()) == 0:
                     continue
 
-                self._chat_history.append({"role": "assistant", "content": _line})
+                self._chat_history.append({"role": "assistant", "content": _line}, user.user_id)
 
                 command_result = self._parse_line_for_command(_line, user)
 
@@ -100,13 +105,13 @@ class LumoChatManager:
                         # As long as the command run had a response, append it to the chat history as a system prompt
                         self._chat_history.append({"role": "system", "content": command_result["response"]}, user)
 
-    def _parse_line_for_command(self, line:str, user=None):
+    def _parse_line_for_command(self, line:str, user:UserProfile):
         '''Function to parse a line of a llm response,
             find any command, format it correctly, and call the appropriate functiony
 
             Parameters:
                 line (str): The line (from an LLM) to parse for included commands
-                user (str): The name of the user the LLM is chatting with
+                user (UserProfile): The profile of the user the LLM is chatting with
 
             Returns:
                 Tuple of a dict with role and content, to be able to be saved as llm chat history:
@@ -150,6 +155,11 @@ class LumoChatManager:
 
         print(command_name, command_args)
 
+        invalid_arg_message = {
+            "response": f"Invalid number of args ({len(command_args)}) for {command_name}. Perhaps try different args.",
+            "continue_response": True
+        }
+
         # Find the command to call and run the function, returning the result as a chat history dict
         match command_name:
             case "get_time":
@@ -167,11 +177,7 @@ class LumoChatManager:
 
                 else:
                     # The number of args is invalid, so return an error message
-                    return {
-                        "response": f"Invalid number of args ({len(command_args)}) for {command_name}. Perhaps try different args.",
-                        "continue_response": True
-                    }
-
+                    return invalid_arg_message
             case "get_weather":
                 if len(command_args) == 0:
                     return {
@@ -187,10 +193,7 @@ class LumoChatManager:
 
                 else:
                     # The number of args is invalid, so return an error message
-                    return {
-                        "response": f"Invalid number of args ({len(command_args)}) for {command_name}. Perhaps try different args.",
-                        "continue_response": True
-                    }
+                    return invalid_arg_message
 
             case "search_wikipedia":
                 if len(command_args) == 0:
@@ -201,14 +204,34 @@ class LumoChatManager:
 
                 else:
                     # The number of args is invalid, so return an error message
-                    return {
-                        "response": f"Invalid number of args ({len(command_args)}) for {command_name}. Perhaps try different args.",
-                        "continue_response": True
-                    }
+                    return invalid_arg_message
 
             case "set_alarm":
                 return {
-                    "response": f"Set alarm <ALARM> for {user}",
+                    "response": f"Set alarm <ALARM> for {user.name}",
+                    "continue_response": False
+                }
+
+            case "toggle_lights":
+                # This case needs to be handled a bit less simply, as the args can be in any combination
+
+                if len(command_args) < 1 or len(command_args) > 3:
+                    return invalid_arg_message
+
+                room_arg = None
+                state_arg = None
+                color_arg = None
+
+                for arg in command_args:
+                    if "#" in arg:
+                        color_arg = arg
+                    elif arg.lower() == "on" or arg.lower() == "off":
+                        state_arg = arg.lower() == "on"  # True if on, False if off
+                    else:
+                        room_arg = arg
+
+                return {
+                    "response": f"{{'light_room': '{room_arg}', 'light_state': {state_arg}, 'light_color': '{color_arg}'}}",
                     "continue_response": False
                 }
 
@@ -217,7 +240,7 @@ class LumoChatManager:
             "continue_response": False
         }
 
-    def _format_user_message(self, message:str, user=None):
+    def _format_user_message(self, message:str, user:UserProfile):
         '''Function to generate a correctly formatted user method as a dict to save to chat history
 
             Parameters:
@@ -232,10 +255,7 @@ class LumoChatManager:
         # Allows language model to know the date and user without needing to run a command
         timestamp = time.strftime("%a %Y-%m-%d %H:%M:%S", time.localtime())
 
-        if user is None:
-            message_stamp = f"Unknown @ {timestamp}:"
-        else:
-            message_stamp = f"{user.title()} @ {timestamp}:"
+        message_stamp = f"{user.name.title()} @ {timestamp}:"
 
         chat_message = message_stamp + message
 
@@ -297,13 +317,9 @@ class LumoChatManager:
 
 if __name__ == "__main__":
     with open("./files/gpt_prompts/commands.yaml", "r", encoding="utf8") as commands:
-        lumo_chat_manager = LumoChatManager(model_name="gpt-3.5", initial_prompts=[
+        lumo_chat_manager = LumoChatManager(model_name="llama3", initial_prompts=[
             {"role": "system", "content": "You are Lumo, a helpful and friendly voice assistant AI. Only respond as Lumo, and never a user. As Lumo, you have a list of commands you can call by responding to a user with '> command_name', which give you added functionality. Each command must be on its own line and begin with >. You are provided the users name and their current time before each query. A list of the commands you can call and their function is provided: "},
             {"role": "system", "content": commands.read()},
             {"role": "user", "content": "User @ Mon 2024-05-06 12:25:24:Hey Lumo, what's the weather like today?"},
             {"role": "assistant", "content": "Let me check that for you!\n> get_weather"}
         ])
-
-        while True:
-            for resp_line in lumo_chat_manager.chat(input("Luke: "), user="Luke"):
-                print(resp_line)
