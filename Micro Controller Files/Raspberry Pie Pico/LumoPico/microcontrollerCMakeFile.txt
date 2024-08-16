@@ -1,0 +1,10 @@
+pico_sdk_init()
+
+add_executable(LumoPico
+    microcontrollerTest.c
+
+)
+
+target_link_libaries(LumoPico, pico_stdlib hardware_adc hardware_pwm)
+
+pico_add_extra_outputs(LumoPico)
