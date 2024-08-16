@@ -1,0 +1,32 @@
+For Audio Streaming Lumo utilizes:
+
+Stereo 3.7W Class D Audio Amplifier
+
+Links:
+https://learn.adafruit.com/stereo-3-7w-class-d-audio-amplifier/downloads
+https://www.adafruit.com/product/987
+
+Raspberry Pi Pico W
+
+Links:
+https://www.canakit.com/raspberry-pi-pico-w.html
+
+This audio server utilizes C so heres a guide on how to set up the pico for C:
+
+https://datasheets.raspberrypi.com/pico/raspberry-pi-pico-c-sdk.pdf
+
+You can also use this buy I think its less useful:
+https://www.electromaker.io/blog/article/getting-started-with-the-raspberry-pi-pico-w-cc-sdk
+
+
+
+More tutorials you can use:
+https://www.raspberrypi.com/tutorials/ 
+https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html#raspberry-pi-pico-w
+
+
+Important tips:
+
+If you wish to spit out audio through a speaker make sure you use port 26.
+The server uses TCP server architecture. This is the server when sending data make sure your the client.
+The audio data needs to be in uint_8, but if you send the data as uint_16 or char then converting it to uint_8 is not too difficult (although for uint_16 you will need to do a bit more work).
