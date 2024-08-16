@@ -79,6 +79,18 @@ int main() {
             return EXIT_FAILURE;
         }
 
+        // funciton to exit out of loop. (its very silly)
+        if (totalBytes == 11){
+            char *exitCheck;
+            char *allClear = "LukeIsCool";
+
+            memset(exitCheck, buffer, 12);
+
+            if (strcmp(exitCheck, allClear)){
+                break;
+            }
+        }
+
         //unneeded... for now...
         //uint slice_num = pwm_gpio_to_slice_num(output_pin);
 
